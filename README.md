@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/05ac1f62-f079-4491-b1b9-781d02cdb459" width="500px"/>
+  <img src="https://github.com/user-attachments/assets/9926f8c0-4604-4706-ae0a-06e2f5d58243" width="500px"/>
 </div>
 
 <h1>
-  <img src="https://github.com/user-attachments/assets/a46225c9-d589-418a-8c67-596e585aa822" width="40" style="vertical-align: middle;" />
+  <img src="https://github.com/user-attachments/assets/270a7b5e-3727-4697-994f-aeb655766b98" width="40" style="vertical-align: middle;" />
   Hell's Fireman
 </h1>
 
