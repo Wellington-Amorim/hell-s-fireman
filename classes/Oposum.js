@@ -18,16 +18,16 @@ class Oposum {
     this.image.onload = () => {
       this.isImageLoaded = true
     }
-    this.image.src = './images/oposum.png'
+    this.image.src = './images/demon1.png'
     this.elapsedTime = 0
     this.currentFrame = 0
     this.sprites = {
       run: {
         x: 0,
         y: 0,
-        width: 36,
+        width: 32,
         height: 28,
-        frames: 6,
+        frames: 8,
       },
     }
     this.currentSprite = this.sprites.run
