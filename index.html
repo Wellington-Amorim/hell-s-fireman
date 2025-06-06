@@ -1,46 +1,106 @@
-<style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font: inherit;
-    vertical-align: baseline;
-  }
-  body {
-    background: black;
-    margin: 0;
-  }
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font: inherit;
+      vertical-align: baseline;
+    }
+    body {
+      background: black;
+      margin: 0;
+      overflow: hidden;
+    }
 
-  canvas {
-    width: 1024px;
-    height: 576px;
-  }
-</style>
-<canvas style="image-rendering: pixelated"></canvas>
-<p style="color: white; font-family: sans-serif; margin: 8px">
-  WASD to move, Spacebar to roll / attack
-</p>
-<script src="./data/l_New_Layer_1.js"></script>
-<script src="./data/l_New_Layer_2.js"></script>
-<script src="./data/l_New_Layer_8.js"></script>
-<script src="./data/l_Back_Tiles.js"></script>
-<script src="./data/l_Decorations.js"></script>
-<script src="./data/l_Front_Tiles.js"></script>
-<script src="./data/l_Shrooms.js"></script>
-<script src="./data/l_Collisions.js"></script>
-<script src="./data/l_Grass.js"></script>
-<script src="./data/l_Trees.js"></script>
-<script src="./data/l_Gems.js"></script>
-<script src="./data/collisions.js"></script>
-<script src="./js/utils.js"></script>
-<script src="./classes/CollisionBlock.js"></script>
-<script src="./classes/Platform.js"></script>
-<script src="./classes/Player.js"></script>
-<script src="./classes/Oposum.js"></script>
-<script src="./classes/Eagle.js"></script>
-<script src="./classes/Sprite.js"></script>
-<script src="./classes/Heart.js"></script>
+    canvas {
+      width: 1024px;
+      height: 576px;
+      display: none;
+    }
 
-<script src="./js/index.js"></script>
-<script src="./js/eventListeners.js"></script>
+    #start-screen {
+      width: 100vw;
+      height: 100vh;
+      background-image: url('./images/tela_inicio.png');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #play-button {
+      padding: 15px 60px;
+      font-size: 24px;
+      background-color: #8B4513;
+      color: white;
+      border: 3px solid #FFD700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Arial', sans-serif;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    #play-button:hover {
+      background-color: #A0522D;
+      transform: scale(1.1);
+    }
+
+    #game-container {
+      display: none;
+    }
+
+    #game-instructions {
+      color: white;
+      font-family: sans-serif;
+      margin: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="start-screen">
+    <button id="play-button">Play</button>
+  </div>
+
+  <div id="game-container">
+    <canvas style="image-rendering: pixelated"></canvas>
+    <p id="game-instructions">WASD to move, Spacebar to roll / attack</p>
+  </div>
+
+  <script src="./data/l_New_Layer_1.js"></script>
+  <script src="./data/l_New_Layer_2.js"></script>
+  <script src="./data/l_New_Layer_8.js"></script>
+  <script src="./data/l_Back_Tiles.js"></script>
+  <script src="./data/l_Decorations.js"></script>
+  <script src="./data/l_Front_Tiles.js"></script>
+  <script src="./data/l_Shrooms.js"></script>
+  <script src="./data/l_Collisions.js"></script>
+  <script src="./data/l_Grass.js"></script>
+  <script src="./data/l_Trees.js"></script>
+  <script src="./data/l_Gems.js"></script>
+  <script src="./data/collisions.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./classes/CollisionBlock.js"></script>
+  <script src="./classes/Platform.js"></script>
+  <script src="./classes/Player.js"></script>
+  <script src="./classes/Oposum.js"></script>
+  <script src="./classes/Eagle.js"></script>
+  <script src="./classes/Sprite.js"></script>
+  <script src="./classes/Heart.js"></script>
+  <script src="./js/index.js"></script>
+  <script src="./js/eventListeners.js"></script>
+
+  <script>
+    document.getElementById('play-button').addEventListener('click', function() {
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('game-container').style.display = 'block';
+      document.querySelector('canvas').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
