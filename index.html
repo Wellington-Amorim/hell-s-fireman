@@ -34,6 +34,26 @@
       justify-content: center;
       align-items: flex-end;
       padding-bottom: 40px;
+      position: relative;
+    }
+
+    #sound-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      z-index: 1000;
+    }
+
+    #sound-button img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     #play-button {
@@ -73,9 +93,17 @@
   </style>
 </head>
 <body>
+  <button id="sound-button">
+    <img src="./images/icone_som.png" alt="Controle de som">
+  </button>
+
   <div id="start-screen">
     <button id="play-button">Play</button>
   </div>
+
+  <audio id="background-music" loop>
+    <source src="./musica.mp3" type="audio/mp3">
+  </audio>
 
   <div id="game-container">
     <canvas style="image-rendering: pixelated"></canvas>
@@ -106,6 +134,73 @@
   <script src="./js/eventListeners.js"></script>
 
   <script>
+    // Controle de música
+    const soundButton = document.getElementById('sound-button');
+    const soundImage = soundButton.querySelector('img');
+    const backgroundMusic = document.getElementById('background-music');
+    let isMusicPlaying = false;
+
+    // Função para atualizar o ícone de som
+    function updateSoundIcon(isPlaying) {
+      soundImage.src = isPlaying ? './images/icone_som.png' : './images/icone_semsom.png';
+      isMusicPlaying = isPlaying;
+    }
+
+    // Função para tentar iniciar a música
+    async function startBackgroundMusic() {
+      try {
+        // Define o volume inicial
+        backgroundMusic.volume = 0.5;
+        // Tenta iniciar a música
+        await backgroundMusic.play();
+        updateSoundIcon(true);
+        console.log("Música iniciada com sucesso!");
+      } catch (error) {
+        console.log("Não foi possível iniciar a música automaticamente. Erro:", error);
+        updateSoundIcon(false);
+        // Se falhar, adiciona um evento de clique no documento para iniciar a música
+        document.addEventListener('click', function startOnClick() {
+          backgroundMusic.play().then(() => {
+            updateSoundIcon(true);
+          }).catch(() => {
+            updateSoundIcon(false);
+          });
+          document.removeEventListener('click', startOnClick);
+        }, { once: true });
+      }
+    }
+
+    // Tenta iniciar a música quando a página carregar
+    window.addEventListener('load', startBackgroundMusic);
+
+    // Tenta iniciar a música quando o documento estiver pronto
+    if (document.readyState === 'complete') {
+      startBackgroundMusic();
+    } else {
+      document.addEventListener('DOMContentLoaded', startBackgroundMusic);
+    }
+
+    // Monitora o estado da música
+    backgroundMusic.addEventListener('play', () => {
+      updateSoundIcon(true);
+    });
+
+    backgroundMusic.addEventListener('pause', () => {
+      updateSoundIcon(false);
+    });
+
+    // Alterna o estado da música
+    soundButton.addEventListener('click', () => {
+      if (isMusicPlaying) {
+        backgroundMusic.pause();
+      } else {
+        backgroundMusic.play().catch(() => {
+          updateSoundIcon(false);
+        });
+      }
+    });
+
+    // Código existente do botão play
     document.getElementById('play-button').addEventListener('click', function() {
       document.getElementById('start-screen').style.display = 'none';
       document.getElementById('game-container').style.display = 'block';
