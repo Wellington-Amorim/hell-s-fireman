@@ -280,8 +280,26 @@ function init() {
 
   oposums = [
     new Oposum({
+      x: 450,
+      y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 600,
+      y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
       x: 650,
       y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 890,
+      y: 150,
       width: 36,
       height: 28,
     }),

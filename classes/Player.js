@@ -15,43 +15,43 @@ class Player {
     this.image.onload = () => {
       this.isImageLoaded = true
     }
-    this.image.src = './images/player.png'
+    this.image.src = './images/player1.png'
     this.elapsedTime = 0
     this.currentFrame = 0
     this.sprites = {
       idle: {
         x: 0,
-        y: 0,
-        width: 33,
-        height: 32,
+        y: 250,
+        width: 32,
+        height: 38,
         frames: 4,
       },
       run: {
-        x: 0,
-        y: 32,
-        width: 33,
-        height: 32,
+        x: 192,
+        y: 158,
+        width: 32,
+        height: 42,
         frames: 6,
       },
       jump: {
-        x: 0,
-        y: 32 * 5,
+        x: 32 * 7,
+        y: 32 * 9,
         width: 33,
-        height: 32,
+        height: 40,
         frames: 1,
       },
       fall: {
-        x: 33,
-        y: 32 * 5,
+        x: 32 * 8,
+        y: 32 * 9,
         width: 33,
-        height: 32,
+        height: 40,
         frames: 1,
       },
       roll: {
-        x: 0,
+        x: 32 * 9,
         y: 32 * 9,
         width: 33,
-        height: 32,
+        height: 38,
         frames: 4,
       },
     }
