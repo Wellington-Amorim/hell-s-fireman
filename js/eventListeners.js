@@ -4,14 +4,29 @@ window.addEventListener('keydown', (event) => {
       player.jump()
       keys.w.pressed = true
       break
+    case 'ArrowUp':
+      player.jump()
+      keys.arrowUp.pressed = true
+      break
     case 'a':
       keys.a.pressed = true
+      break
+    case 'ArrowRight':
+      keys.arrowRight.pressed = true
+      player.lastDirection = 'right'
       break
     case 'd':
       keys.d.pressed = true
       break
-    case ' ':
-      player.roll()
+    case 'ArrowLeft':
+      keys.arrowLeft.pressed = true
+      player.lastDirection = 'left'
+      break
+    case 'Shift':
+      player.dodge()
+      break
+    case ' ': 
+      player.shoot()
       break
   }
 })
@@ -21,8 +36,14 @@ window.addEventListener('keyup', (event) => {
     case 'a':
       keys.a.pressed = false
       break
+    case 'ArrowRight':
+      keys.arrowRight.pressed = false
+      break
     case 'd':
       keys.d.pressed = false
+      break
+    case 'ArrowLeft':
+      keys.arrowLeft.pressed = false
       break
   }
 })
