@@ -1,6 +1,6 @@
-const X_VELOCITY = 200
+const X_VELOCITY = 140
 const JUMP_POWER = 250
-const GRAVITY = 580
+const GRAVIDADE = 550
 
 class Player {
   constructor({ x, y, size, velocity = { x: 0, y: 0 } }) {
@@ -18,6 +18,7 @@ class Player {
     this.image.src = './images/player1.png'
     this.elapsedTime = 0
     this.currentFrame = 0
+    this.lastDirection = "right"
     this.sprites = {
       idle: {
         x: 0,
@@ -50,10 +51,17 @@ class Player {
       roll: {
         x: 32 * 9,
         y: 32 * 9,
-        width: 33,
+        width: 32,
         height: 38,
         frames: 4,
       },
+      shoot: {
+        x: 0,
+        y: 250,
+        width: 32,
+        height: 38,
+        frames: 4,
+      }
     }
     this.currentSprite = this.sprites.roll
     this.facing = 'right'
@@ -125,7 +133,7 @@ class Player {
 
     // Updating animation frames
     this.elapsedTime += deltaTime
-    const secondsInterval = 0.1
+    const secondsInterval = 0.4
     if (this.elapsedTime > secondsInterval) {
       this.currentFrame = (this.currentFrame + 1) % this.currentSprite.frames
       this.elapsedTime -= secondsInterval
@@ -133,6 +141,7 @@ class Player {
 
     if (this.isRolling && this.currentFrame === 3) {
       this.isRolling = false
+      this.isInvincible = false
     }
 
     // Update hitbox position
@@ -156,13 +165,14 @@ class Player {
     this.switchSprites()
   }
 
-  roll() {
+  dodge() {
     if (this.isOnGround) {
       this.currentSprite = this.sprites.roll
       this.currentFrame = 0
       this.isRolling = true
       this.isInAirAfterRolling = true
       this.velocity.x = this.facing === 'right' ? 300 : -300
+      this.isInvincible = true
     }
   }
 
@@ -217,6 +227,24 @@ class Player {
     this.isOnGround = false
   }
 
+  shoot() {
+      if (!this.canShoot) return
+
+      this.canShoot = false
+      setTimeout(() => {
+        this.canShoot = true
+      }, 300) // 300 ms de cooldown
+      const direction = this.lastDirection === 'right' ? 1 : -1
+
+      const projectileX = this.x + this.width / 2
+      const projectileY = this.y + this.height / 2
+
+      projectiles.push(new Projectile(projectileX, projectileY, direction))
+
+      this.currentSprite = this.sprites.shoot
+      this.currentFrame = 0
+  }
+
   updateHorizontalPosition(deltaTime) {
     this.x += this.velocity.x * deltaTime
     this.hitbox.x += this.velocity.x * deltaTime
@@ -228,7 +256,7 @@ class Player {
   }
 
   applyGravity(deltaTime) {
-    this.velocity.y += GRAVITY * deltaTime
+    this.velocity.y += GRAVIDADE * deltaTime
   }
 
   handleInput(keys) {
@@ -236,17 +264,18 @@ class Player {
 
     this.velocity.x = 0
 
-    if (keys.d.pressed) {
+    if (keys.d.pressed || keys.arrowRight.pressed ) {
       this.velocity.x = X_VELOCITY
-    } else if (keys.a.pressed) {
+    } else if (keys.a.pressed || keys.arrowLeft.pressed) {
       this.velocity.x = -X_VELOCITY
     }
   }
 
-  stopRoll() {
+  stopDodge() {
     this.velocity.x = 0
     this.isRolling = false
     this.isInAirAfterRolling = false
+    this.isInvincible = false
   }
 
   checkForHorizontalCollisions(collisionBlocks) {
@@ -265,7 +294,6 @@ class Player {
         if (this.velocity.x < -0) {
           this.hitbox.x = collisionBlock.x + collisionBlock.width + buffer
           this.x = this.hitbox.x - 4
-          this.stopRoll()
           break
         }
 
@@ -273,7 +301,6 @@ class Player {
         if (this.velocity.x > 0) {
           this.hitbox.x = collisionBlock.x - this.hitbox.width - buffer
           this.x = this.hitbox.x - 4
-          this.stopRoll()
           break
         }
       }

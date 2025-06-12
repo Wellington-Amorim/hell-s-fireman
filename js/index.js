@@ -183,9 +183,15 @@ const keys = {
   a: {
     pressed: false,
   },
+  arrowLeft: {
+    pressed: false,
+  },
   d: {
     pressed: false,
   },
+  arrowRight: {
+    pressed: false,
+  }
 }
 
 let lastTime = performance.now()
@@ -497,8 +503,6 @@ function animate(backgroundCanvas) {
         } else if (fullHearts.length === 0) {
           init()
         }
-
-        player.setIsInvincible()
       }
     }
   }
