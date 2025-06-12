@@ -22,16 +22,16 @@ class Player {
     this.sprites = {
       idle: {
         x: 0,
-        y: 250,
+        y: 248,
         width: 32,
-        height: 38,
+        height: 40,
         frames: 4,
       },
       run: {
         x: 192,
-        y: 158,
+        y: 154,
         width: 32,
-        height: 42,
+        height: 40,
         frames: 6,
       },
       jump: {
