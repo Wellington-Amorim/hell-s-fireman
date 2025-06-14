@@ -90,9 +90,31 @@ const renderLayer = (tilesData, tilesetImage, tileSize, context) => {
 }
 
 const renderStaticLayers = async (layersData) => {
+  const blockSize = 16
+  let mapWidth = 0
+  let mapHeight = 0
+
+  // Encontra a maior largura e altura entre todas as camadas de dados
+  for (const layer in layersData) {
+    const data = layersData[layer]
+    if (data && data.length > 0) {
+      const currentHeight = data.length * blockSize
+      if (currentHeight > mapHeight) {
+        mapHeight = currentHeight
+      }
+
+      if (data[0] && data[0].length > 0) {
+        const currentWidth = data[0].length * blockSize
+        if (currentWidth > mapWidth) {
+          mapWidth = currentWidth
+        }
+      }
+    }
+  }
+
   const offscreenCanvas = document.createElement('canvas')
-  offscreenCanvas.width = canvas.width
-  offscreenCanvas.height = canvas.height
+  offscreenCanvas.width = mapWidth
+  offscreenCanvas.height = mapHeight
   const offscreenContext = offscreenCanvas.getContext('2d')
 
   for (const [layerName, tilesData] of Object.entries(layersData)) {
@@ -557,7 +579,7 @@ function animate(backgroundCanvas) {
     camera.x = scrollPostDistance
   }
 
-  if (player.y < SCROLL_POST_TOP && camera.y > 0) {
+  if (player.y < SCROLL_POST_TOP && camera.y > 5850) {
     const scrollPostDistance = SCROLL_POST_TOP - player.y
     camera.y = scrollPostDistance
   }
@@ -567,13 +589,35 @@ function animate(backgroundCanvas) {
     camera.y = -scrollPostDistance
   }
 
+  // Limita a câmera para não ultrapassar as bordas do mapa
+  const logicalViewportHeight = canvas.height / (dpr + 1); // Altura da visão do jogo (1152 / 3 = 384)
+  const mapHeight = 108 * 16; // Altura total do mapa (1440)
+  const maxCameraY = -(mapHeight - logicalViewportHeight);
+
+  if (camera.y < maxCameraY) {
+    camera.y = maxCameraY;
+  }
+  if (camera.y > 0) { // Impede que a câmera suba além do topo do mapa
+    camera.y = 0;
+  }
+
   // Render scene
+  // Render scene
+  c.fillStyle = 'black'
+  c.fillRect(0, 0, canvas.width, canvas.height) // Limpa a tela
+
   c.save()
   c.scale(dpr + 1, dpr + 1)
-  c.translate(-camera.x, camera.y)
-  c.clearRect(0, 0, canvas.width, canvas.height)
-  c.drawImage(oceanBackgroundCanvas, camera.x * 0.32, 0)
-  c.drawImage(brambleBackgroundCanvas, camera.x * 0.16, 0)
+
+  // Camada de Paralaxe: Oceano (com rolagem vertical corrigida)
+  c.drawImage(oceanBackgroundCanvas, -camera.x * 0.32, camera.y * 0.32)
+
+  // Camada de Paralaxe: Espinhos (com rolagem vertical corrigida)
+  c.drawImage(brambleBackgroundCanvas, -camera.x * 0.16, camera.y * 0.16)
+
+  // Mundo principal do jogo
+  c.save()
+  c.translate(-camera.x, camera.y) // Move o mundo do jogo
   c.drawImage(backgroundCanvas, 0, 0)
   player.draw(c)
 
@@ -596,11 +640,9 @@ function animate(backgroundCanvas) {
     const gem = gems[i]
     gem.draw(c)
   }
+  c.restore() // Restaura a translação do mundo do jogo
 
-  // c.fillRect(SCROLL_POST_RIGHT, 100, 10, 100)
-  // c.fillRect(300, SCROLL_POST_TOP, 100, 10)
-  // c.fillRect(300, SCROLL_POST_BOTTOM, 100, 10)
-  c.restore()
+  c.restore() // Restaura a escala
 
   // UI save and restore
   c.save()
