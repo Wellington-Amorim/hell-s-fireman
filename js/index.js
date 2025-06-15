@@ -40,7 +40,7 @@ const tilesets = {
 // Tile setup
 const collisionBlocks = []
 const platforms = []
-const blockSize = 16 // Assuming each tile is 16x16 pixels
+const blockSize = 16
 
 collisions.forEach((row, y) => {
   row.forEach((symbol, x) => {
@@ -74,15 +74,15 @@ const renderLayer = (tilesData, tilesetImage, tileSize, context) => {
           Math.floor((symbol - 1) / (tilesetImage.width / tileSize)) * tileSize
 
         context.drawImage(
-          tilesetImage, // source image
+          tilesetImage,
           srcX,
           srcY, // source x, y
           tileSize,
-          tileSize, // source width, height
+          tileSize,
           x * 16,
-          y * 16, // destination x, y
+          y * 16,
           16,
-          16, // destination width, height
+          16,
         )
       }
     })
@@ -94,7 +94,6 @@ const renderStaticLayers = async (layersData) => {
   let mapWidth = 0
   let mapHeight = 0
 
-  // Encontra a maior largura e altura entre todas as camadas de dados
   for (const layer in layersData) {
     const data = layersData[layer]
     if (data && data.length > 0) {
@@ -134,69 +133,8 @@ const renderStaticLayers = async (layersData) => {
     }
   }
 
-  // Optionally draw collision blocks and platforms for debugging
-  // collisionBlocks.forEach(block => block.draw(offscreenContext));
-  // platforms.forEach((platform) => platform.draw(offscreenContext))
-
   return offscreenCanvas
 }
-// END - Tile setup
-
-// Change xy coordinates to move player's default position
-let player = new Player({
-  x: 100,
-  y: 100,
-  size: 32,
-  velocity: { x: 0, y: 0 },
-})
-
-let oposums = []
-let eagles = []
-let sprites = []
-let hearts = [
-  new Heart({
-    x: 10,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-  new Heart({
-    x: 33,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-  new Heart({
-    x: 56,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-]
 
 const keys = {
   w: {
@@ -291,12 +229,14 @@ function init() {
     })
   })
 
+  // Posição incial do Player
   player = new Player({
     x: 100,
     y: 100,
     size: 32,
     velocity: { x: 0, y: 0 },
   })
+  projectiles = []
   eagles = [
     new Eagle({
       x: 816,
@@ -409,109 +349,95 @@ function animate(backgroundCanvas) {
   const deltaTime = (currentTime - lastTime) / 1000
   lastTime = currentTime
 
-  // Update player position
+  // Atualiza a posição do player
   player.handleInput(keys)
   player.update(deltaTime, collisionBlocks)
+
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const projectile = projectiles[i];
+    projectile.update(deltaTime);
+
+    // Remover projéteis fora da tela
+    if (projectile.x < 0 || projectile.x > canvas.width) {
+        projectiles.splice(i, 1);
+        continue
+    }
+  
+    // Verifica colisão com inimigos (oposums)
+    for (let j = oposums.length - 1; j >= 0; j--) {
+      const oposum = oposums[j];
+      if (projectile.hitbox && oposum.hitbox) {
+        if (checkCollisions(projectile, oposum)) {
+          sprites.push(
+            new Sprite({
+              x: oposum.x,
+              y: oposum.y,
+              width: 32,
+              height: 32,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+          oposums.splice(j, 1);
+          projectiles.splice(i, 1);
+          break;
+        }
+      }  
+    }
+    // Verifica colisão com inimigos (eagles)
+    for (let j = eagles.length - 1; j >= 0; j--) {
+      const eagle = eagles[j];
+      if (projectile.hitbox && eagle.hitbox) {
+        if (checkCollisions(projectile, eagle)) {
+          sprites.push(
+            new Sprite({
+              x: eagle.x,
+              y: eagle.y,
+              width: 32,
+              height: 32,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+          eagles.splice(j, 1);
+          projectiles.splice(i, 1);
+          break;
+        }
+      }  
+    }
+    // Verifica colisão com paredes. Não está funcionando ainda
+    for (let j = 0; j < collisionBlocks.length; j++) {
+      const collisionBlock = collisionBlocks[j];
+      if (projectile.hitbox && collisionBlock.hitbox) {
+        if (checkCollisions(projectile, collisionBlock)) {
+          projectiles.splice(i, 1)
+          break
+        }
+      }
+    }
+  }
 
   // Update oposum position
   for (let i = oposums.length - 1; i >= 0; i--) {
     const oposum = oposums[i]
     oposum.update(deltaTime, collisionBlocks)
 
-    // Jump on enemy
+    // Tomar dano ao encostar no inimigo
     const collisionDirection = checkCollisions(player, oposum)
     if (collisionDirection) {
-      if (collisionDirection === 'bottom' && !player.isOnGround) {
-        player.velocity.y = -200
-        sprites.push(
-          new Sprite({
-            x: oposum.x,
-            y: oposum.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        oposums.splice(i, 1)
-      } else if (
-        (collisionDirection === 'left' || collisionDirection === 'right') &&
-        player.isOnGround &&
-        player.isRolling
-      ) {
-        sprites.push(
-          new Sprite({
-            x: oposum.x,
-            y: oposum.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        oposums.splice(i, 1)
-      } else if (
-        collisionDirection === 'left' ||
-        collisionDirection === 'right'
-      ) {
-        const fullHearts = hearts.filter((heart) => {
-          return !heart.depleted
-        })
-
-        if (!player.isInvincible && fullHearts.length > 0) {
-          fullHearts[fullHearts.length - 1].depleted = true
-        } else if (fullHearts.length === 0) {
-          init()
-        }
-
-        player.setIsInvincible()
-      }
-    }
-  }
-
-  // Update eagle position
-  for (let i = eagles.length - 1; i >= 0; i--) {
-    const eagle = eagles[i]
-    eagle.update(deltaTime, collisionBlocks)
-
-    // Jump on enemy
-    const collisionDirection = checkCollisions(player, eagle)
-    if (collisionDirection) {
-      if (collisionDirection === 'bottom' && !player.isOnGround) {
-        player.velocity.y = -200
-        sprites.push(
-          new Sprite({
-            x: eagle.x,
-            y: eagle.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        eagles.splice(i, 1)
-      } else if (
+      if (
         collisionDirection === 'left' ||
         collisionDirection === 'right' ||
         collisionDirection === 'top'
@@ -522,6 +448,34 @@ function animate(backgroundCanvas) {
 
         if (!player.isInvincible && fullHearts.length > 0) {
           fullHearts[fullHearts.length - 1].depleted = true
+          player.setIsInvincible()
+        } else if (fullHearts.length === 0) {
+          init()
+        }
+      }
+    }
+  }
+
+  // Update eagle position
+  for (let i = eagles.length - 1; i >= 0; i--) {
+    const eagle = eagles[i]
+    eagle.update(deltaTime, collisionBlocks)
+
+    // Tomar dano ao encostar no inimigo
+    const collisionDirection = checkCollisions(player, eagle)
+    if (collisionDirection) {
+      if (
+        collisionDirection === 'left' ||
+        collisionDirection === 'right' ||
+        collisionDirection === 'top'
+      ) {
+        const fullHearts = hearts.filter((heart) => {
+          return !heart.depleted
+        })
+
+        if (!player.isInvincible && fullHearts.length > 0) {
+          fullHearts[fullHearts.length - 1].depleted = true
+          player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
         }
@@ -538,14 +492,14 @@ function animate(backgroundCanvas) {
     }
   }
 
+  // Coleta das gotas de água
   for (let i = gems.length - 1; i >= 0; i--) {
     const gem = gems[i]
     gem.update(deltaTime)
 
-    // THIS IS WHERE WE ARE COLLECTING GEMS
     const collisionDirection = checkCollisions(player, gem)
     if (collisionDirection) {
-      // create an item feedback animation
+      // Feedback de coleta das gotas de água
       sprites.push(
         new Sprite({
           x: gem.x - 8,
@@ -563,7 +517,7 @@ function animate(backgroundCanvas) {
         }),
       )
 
-      // remove a gem from the game
+      // Remove as gemas da tela
       gems.splice(i, 1)
       gemCount++
 
@@ -573,7 +527,6 @@ function animate(backgroundCanvas) {
     }
   }
 
-  // Track scroll post distance
   if (player.x > SCROLL_POST_RIGHT && player.x < 1680) {
     const scrollPostDistance = player.x - SCROLL_POST_RIGHT
     camera.x = scrollPostDistance
@@ -590,29 +543,26 @@ function animate(backgroundCanvas) {
   }
 
   // Limita a câmera para não ultrapassar as bordas do mapa
-  const logicalViewportHeight = canvas.height / (dpr + 1); // Altura da visão do jogo (1152 / 3 = 384)
-  const mapHeight = 108 * 16; // Altura total do mapa (1440)
+  const logicalViewportHeight = canvas.height / (dpr + 1);
+  const mapHeight = 108 * 16;
   const maxCameraY = -(mapHeight - logicalViewportHeight);
 
   if (camera.y < maxCameraY) {
     camera.y = maxCameraY;
   }
-  if (camera.y > 0) { // Impede que a câmera suba além do topo do mapa
+  // Impede que a câmera suba além do topo do mapa
+  if (camera.y > 0) {
     camera.y = 0;
   }
 
-  // Render scene
-  // Render scene
   c.fillStyle = 'black'
-  c.fillRect(0, 0, canvas.width, canvas.height) // Limpa a tela
+  c.fillRect(0, 0, canvas.width, canvas.height)
 
   c.save()
   c.scale(dpr + 1, dpr + 1)
 
-  // Camada de Paralaxe: Oceano (com rolagem vertical corrigida)
   c.drawImage(oceanBackgroundCanvas, -camera.x * 0.32, camera.y * 0.32)
 
-  // Camada de Paralaxe: Espinhos (com rolagem vertical corrigida)
   c.drawImage(brambleBackgroundCanvas, -camera.x * 0.16, camera.y * 0.16)
 
   // Mundo principal do jogo
@@ -620,6 +570,11 @@ function animate(backgroundCanvas) {
   c.translate(-camera.x, camera.y) // Move o mundo do jogo
   c.drawImage(backgroundCanvas, 0, 0)
   player.draw(c)
+
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const projectile = projectiles[i];
+    projectile.draw(c);
+  }
 
   for (let i = oposums.length - 1; i >= 0; i--) {
     const oposum = oposums[i]
@@ -640,11 +595,10 @@ function animate(backgroundCanvas) {
     const gem = gems[i]
     gem.draw(c)
   }
-  c.restore() // Restaura a translação do mundo do jogo
+  c.restore()
 
-  c.restore() // Restaura a escala
+  c.restore()
 
-  // UI save and restore
   c.save()
   c.scale(dpr + 1, dpr + 1)
   for (let i = hearts.length - 1; i >= 0; i--) {

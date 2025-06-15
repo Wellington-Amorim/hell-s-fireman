@@ -56,14 +56,14 @@ class Player {
         frames: 4,
       },
       shoot: {
-        x: 0,
+        x: 0, 
         y: 250,
         width: 32,
         height: 38,
         frames: 4,
       }
     }
-    this.currentSprite = this.sprites.roll
+    this.currentSprite = this.sprites.idle
     this.facing = 'right'
     this.hitbox = {
       x: 0,
@@ -72,8 +72,8 @@ class Player {
       height: 23,
     }
     this.isInvincible = false
-    this.isRolling = false
-    this.isInAirAfterRolling = false
+    this.isDodging = false
+    this.isInAirAfterDodging = false
   }
 
   setIsInvincible() {
@@ -139,8 +139,8 @@ class Player {
       this.elapsedTime -= secondsInterval
     }
 
-    if (this.isRolling && this.currentFrame === 3) {
-      this.isRolling = false
+    if (this.isDodging && this.currentFrame === 3) {
+      this.isDodging = false
       this.isInvincible = false
     }
 
@@ -179,8 +179,10 @@ class Player {
   determineDirection() {
     if (this.velocity.x > 0) {
       this.facing = 'right'
+      this.lastDirection = 'right'
     } else if (this.velocity.x < 0) {
       this.facing = 'left'
+      this.lastDirection = 'left'
     }
   }
 
@@ -228,22 +230,15 @@ class Player {
   }
 
   shoot() {
-      if (!this.canShoot) return
-
-      this.canShoot = false
-      setTimeout(() => {
-        this.canShoot = true
-      }, 300) // 300 ms de cooldown
-      const direction = this.lastDirection === 'right' ? 1 : -1
-
-      const projectileX = this.x + this.width / 2
-      const projectileY = this.y + this.height / 2
-
-      projectiles.push(new Projectile(projectileX, projectileY, direction))
-
-      this.currentSprite = this.sprites.shoot
-      this.currentFrame = 0
-  }
+    const projectile = new Projectile({
+        x: this.x + this.width / 2,
+        y: this.y + this.height / 2,
+        velocity: this.lastDirection === 'right' ? { x: 300, y: 0 } : { x: -300, y: 0 },
+        width: 10,
+        height: 5,
+    }); 
+    projectiles.push(projectile);
+}
 
   updateHorizontalPosition(deltaTime) {
     this.x += this.velocity.x * deltaTime
@@ -273,8 +268,8 @@ class Player {
 
   stopDodge() {
     this.velocity.x = 0
-    this.isRolling = false
-    this.isInAirAfterRolling = false
+    this.isDodging = false
+    this.isInAirAfterDodging = false
     this.isInvincible = false
   }
 
@@ -334,7 +329,7 @@ class Player {
           this.hitbox.y = collisionBlock.y - this.hitbox.height - buffer
           this.isOnGround = true
 
-          if (!this.isRolling) this.isInAirAfterRolling = false
+          if (!this.isDodging) this.isInAirAfterDodging = false
           break
         }
       }
