@@ -236,6 +236,7 @@ function init() {
     size: 32,
     velocity: { x: 0, y: 0 },
   })
+  
   projectiles = []
   eagles = [
     new Eagle({
