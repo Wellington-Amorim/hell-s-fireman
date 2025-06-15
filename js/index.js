@@ -297,59 +297,59 @@ function init() {
     size: 32,
     velocity: { x: 0, y: 0 },
   })
-  eagles = [
-    new Eagle({
-      x: 816,
-      y: 172,
-      width: 40,
-      height: 41,
-    }),
-  ]
+  // eagles = [
+  //   new Eagle({
+  //     x: 816,
+  //     y: 172,
+  //     width: 40,
+  //     height: 41,
+  //   }),
+  // ]
 
-  oposums = [
-    new Oposum({
-      x: 450,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 600,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 650,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 890,
-      y: 150,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 906,
-      y: 515,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 1150,
-      y: 515,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 1663,
-      y: 200,
-      width: 36,
-      height: 28,
-    }),
-  ]
+  // oposums = [
+  //   new Oposum({
+  //     x: 450,
+  //     y: 100,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 600,
+  //     y: 100,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 650,
+  //     y: 100,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 890,
+  //     y: 150,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 906,
+  //     y: 515,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 1150,
+  //     y: 515,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  //   new Oposum({
+  //     x: 1663,
+  //     y: 200,
+  //     width: 36,
+  //     height: 28,
+  //   }),
+  // ]
 
   sprites = []
   hearts = [

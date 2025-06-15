@@ -177,15 +177,15 @@
       }
     }
 
-    // Tenta iniciar a música quando a página carregar
-    window.addEventListener('load', startBackgroundMusic);
+    // // Tenta iniciar a música quando a página carregar
+    // window.addEventListener('load', startBackgroundMusic);
 
-    // Tenta iniciar a música quando o documento estiver pronto
-    if (document.readyState === 'complete') {
-      startBackgroundMusic();
-    } else {
-      document.addEventListener('DOMContentLoaded', startBackgroundMusic);
-    }
+    // // Tenta iniciar a música quando o documento estiver pronto
+    // if (document.readyState === 'complete') {
+    //   startBackgroundMusic();
+    // } else {
+    //   document.addEventListener('DOMContentLoaded', startBackgroundMusic);
+    // }
 
     // Monitora o estado da música
     backgroundMusic.addEventListener('play', () => {
