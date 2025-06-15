@@ -18,7 +18,7 @@ class Player {
     this.image.src = './images/player1.png'
     this.elapsedTime = 0
     this.currentFrame = 0
-    this.lastDirection = "right" // Adicione esta propriedade para rastrear a última direção
+    this.lastDirection = "right"
     this.sprites = {
       idle: {
         x: 0,
@@ -55,8 +55,8 @@ class Player {
         height: 38,
         frames: 4,
       },
-      shoot: { // Adicione o sprite de tiro
-        x: 0, // Ajuste as coordenadas X e Y conforme necessário para o seu spritesheet
+      shoot: {
+        x: 0, 
         y: 250,
         width: 32,
         height: 38,
@@ -72,8 +72,8 @@ class Player {
       height: 23,
     }
     this.isInvincible = false
-    this.isRolling = false
-    this.isInAirAfterRolling = false
+    this.isDodging = false
+    this.isInAirAfterDodging = false
   }
 
   setIsInvincible() {
@@ -139,8 +139,8 @@ class Player {
       this.elapsedTime -= secondsInterval
     }
 
-    if (this.isRolling && this.currentFrame === 3) {
-      this.isRolling = false
+    if (this.isDodging && this.currentFrame === 3) {
+      this.isDodging = false
       this.isInvincible = false
     }
 
@@ -179,10 +179,10 @@ class Player {
   determineDirection() {
     if (this.velocity.x > 0) {
       this.facing = 'right'
-      this.lastDirection = 'right' // Atualiza a última direção
+      this.lastDirection = 'right'
     } else if (this.velocity.x < 0) {
       this.facing = 'left'
-      this.lastDirection = 'left' // Atualiza a última direção
+      this.lastDirection = 'left'
     }
   }
 
@@ -268,8 +268,8 @@ class Player {
 
   stopDodge() {
     this.velocity.x = 0
-    this.isRolling = false
-    this.isInAirAfterAfterRolling = false
+    this.isDodging = false
+    this.isInAirAfterDodging = false
     this.isInvincible = false
   }
 
@@ -329,7 +329,7 @@ class Player {
           this.hitbox.y = collisionBlock.y - this.hitbox.height - buffer
           this.isOnGround = true
 
-          if (!this.isRolling) this.isInAirAfterRolling = false
+          if (!this.isDodging) this.isInAirAfterDodging = false
           break
         }
       }
