@@ -142,62 +142,6 @@ const renderStaticLayers = async (layersData) => {
 }
 // END - Tile setup
 
-// Change xy coordinates to move player's default position
-let player = new Player({
-  x: 100,
-  y: 100,
-  size: 32,
-  velocity: { x: 0, y: 0 },
-})
-
-let oposums = []
-let eagles = []
-let sprites = []
-let hearts = [
-  new Heart({
-    x: 10,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-  new Heart({
-    x: 33,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-  new Heart({
-    x: 56,
-    y: 10,
-    width: 21,
-    height: 18,
-    imageSrc: './images/hearts.png',
-    spriteCropbox: {
-      x: 0,
-      y: 0,
-      width: 21,
-      height: 18,
-      frames: 6,
-    },
-  }),
-]
-
 const keys = {
   w: {
     pressed: false,
@@ -244,6 +188,7 @@ let gemUI = new Sprite({
 })
 let gemCount = 0
 
+// Apenas uma definição da função init()
 function init() {
   gems = []
   gemCount = 0
@@ -291,12 +236,14 @@ function init() {
     })
   })
 
+  // Change xy coordinates to move player's default position
   player = new Player({
     x: 100,
     y: 100,
     size: 32,
     velocity: { x: 0, y: 0 },
   })
+  projectiles = [] // Reinicialize a array de projéteis
   eagles = [
     new Eagle({
       x: 816,
@@ -413,105 +360,90 @@ function animate(backgroundCanvas) {
   player.handleInput(keys)
   player.update(deltaTime, collisionBlocks)
 
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const projectile = projectiles[i];
+    projectile.update(deltaTime);
+
+    // Remover projéteis fora da tela
+    if (projectile.x < 0 || projectile.x > canvas.width) {
+        projectiles.splice(i, 1);
+        continue
+    }
+  
+    // Verifica colisão com inimigos (oposums e eagles)
+    for (let j = oposums.length - 1; j >= 0; j--) {
+      const oposum = oposums[j];
+      if (projectile.hitbox && oposum.hitbox) {
+        if (checkCollisions(projectile, oposum)) {
+          sprites.push(
+            new Sprite({
+              x: oposum.x,
+              y: oposum.y,
+              width: 32,
+              height: 32,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+          oposums.splice(j, 1);
+          projectiles.splice(i, 1);
+          break;
+        }
+      }  
+    }
+    for (let j = eagles.length - 1; j >= 0; j--) {
+      const eagle = eagles[j];
+      if (projectile.hitbox && eagle.hitbox) {
+        if (checkCollisions(projectile, eagle)) {
+          sprites.push(
+            new Sprite({
+              x: eagle.x,
+              y: eagle.y,
+              width: 32,
+              height: 32,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+          eagles.splice(j, 1);
+          projectiles.splice(i, 1);
+          break;
+        }
+      }  
+    }
+    for (let j = 0; j < collisionBlocks.length; j++) {
+      const collisionBlock = collisionBlocks[j];
+      // Certifique-se de que o projétil tem um hitbox
+      if (projectile.hitbox && collisionBlock.hitbox) { // Assumindo que CollisionBlock também tem um hitbox
+        if (checkCollisions(projectile, collisionBlock)) {
+          projectiles.splice(i, 1); // Remove o projétil se colidir com a parede
+          break; // Sai do loop interno de colisão com paredes, pois o projétil foi removido
+        }
+      }
+    }
+  }
+
   // Update oposum position
   for (let i = oposums.length - 1; i >= 0; i--) {
     const oposum = oposums[i]
     oposum.update(deltaTime, collisionBlocks)
 
-    // Jump on enemy
+    // Tomar dano ao encostar no inimigo
     const collisionDirection = checkCollisions(player, oposum)
     if (collisionDirection) {
-      if (collisionDirection === 'bottom' && !player.isOnGround) {
-        player.velocity.y = -200
-        sprites.push(
-          new Sprite({
-            x: oposum.x,
-            y: oposum.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        oposums.splice(i, 1)
-      } else if (
-        (collisionDirection === 'left' || collisionDirection === 'right') &&
-        player.isOnGround &&
-        player.isRolling
-      ) {
-        sprites.push(
-          new Sprite({
-            x: oposum.x,
-            y: oposum.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        oposums.splice(i, 1)
-      } else if (
-        collisionDirection === 'left' ||
-        collisionDirection === 'right'
-      ) {
-        const fullHearts = hearts.filter((heart) => {
-          return !heart.depleted
-        })
-
-        if (!player.isInvincible && fullHearts.length > 0) {
-          fullHearts[fullHearts.length - 1].depleted = true
-        } else if (fullHearts.length === 0) {
-          init()
-        }
-
-        player.setIsInvincible()
-      }
-    }
-  }
-
-  // Update eagle position
-  for (let i = eagles.length - 1; i >= 0; i--) {
-    const eagle = eagles[i]
-    eagle.update(deltaTime, collisionBlocks)
-
-    // Jump on enemy
-    const collisionDirection = checkCollisions(player, eagle)
-    if (collisionDirection) {
-      if (collisionDirection === 'bottom' && !player.isOnGround) {
-        player.velocity.y = -200
-        sprites.push(
-          new Sprite({
-            x: eagle.x,
-            y: eagle.y,
-            width: 32,
-            height: 32,
-            imageSrc: './images/enemy-death.png',
-            spriteCropbox: {
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 41,
-              frames: 6,
-            },
-          }),
-        )
-
-        eagles.splice(i, 1)
-      } else if (
+      if (
         collisionDirection === 'left' ||
         collisionDirection === 'right' ||
         collisionDirection === 'top'
@@ -522,6 +454,34 @@ function animate(backgroundCanvas) {
 
         if (!player.isInvincible && fullHearts.length > 0) {
           fullHearts[fullHearts.length - 1].depleted = true
+          player.setIsInvincible()
+        } else if (fullHearts.length === 0) {
+          init()
+        }
+      }
+    }
+  }
+
+  // Update eagle position
+  for (let i = eagles.length - 1; i >= 0; i--) {
+    const eagle = eagles[i]
+    eagle.update(deltaTime, collisionBlocks)
+
+    // Tomar dano ao encostar no inimigo
+    const collisionDirection = checkCollisions(player, eagle)
+    if (collisionDirection) {
+      if (
+        collisionDirection === 'left' ||
+        collisionDirection === 'right' ||
+        collisionDirection === 'top'
+      ) {
+        const fullHearts = hearts.filter((heart) => {
+          return !heart.depleted
+        })
+
+        if (!player.isInvincible && fullHearts.length > 0) {
+          fullHearts[fullHearts.length - 1].depleted = true
+          player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
         }
@@ -602,7 +562,6 @@ function animate(backgroundCanvas) {
   }
 
   // Render scene
-  // Render scene
   c.fillStyle = 'black'
   c.fillRect(0, 0, canvas.width, canvas.height) // Limpa a tela
 
@@ -620,6 +579,11 @@ function animate(backgroundCanvas) {
   c.translate(-camera.x, camera.y) // Move o mundo do jogo
   c.drawImage(backgroundCanvas, 0, 0)
   player.draw(c)
+
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const projectile = projectiles[i];
+    projectile.draw(c); // AGORA ELE SERÁ DESENHADO COM A TRANSLACÃO DA CÂMERA
+  }
 
   for (let i = oposums.length - 1; i >= 0; i--) {
     const oposum = oposums[i]

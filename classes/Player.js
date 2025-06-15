@@ -18,7 +18,7 @@ class Player {
     this.image.src = './images/player1.png'
     this.elapsedTime = 0
     this.currentFrame = 0
-    this.lastDirection = "right"
+    this.lastDirection = "right" // Adicione esta propriedade para rastrear a última direção
     this.sprites = {
       idle: {
         x: 0,
@@ -55,15 +55,15 @@ class Player {
         height: 38,
         frames: 4,
       },
-      shoot: {
-        x: 0,
+      shoot: { // Adicione o sprite de tiro
+        x: 0, // Ajuste as coordenadas X e Y conforme necessário para o seu spritesheet
         y: 250,
         width: 32,
         height: 38,
         frames: 4,
       }
     }
-    this.currentSprite = this.sprites.roll
+    this.currentSprite = this.sprites.idle
     this.facing = 'right'
     this.hitbox = {
       x: 0,
@@ -179,8 +179,10 @@ class Player {
   determineDirection() {
     if (this.velocity.x > 0) {
       this.facing = 'right'
+      this.lastDirection = 'right' // Atualiza a última direção
     } else if (this.velocity.x < 0) {
       this.facing = 'left'
+      this.lastDirection = 'left' // Atualiza a última direção
     }
   }
 
@@ -228,22 +230,15 @@ class Player {
   }
 
   shoot() {
-      if (!this.canShoot) return
-
-      this.canShoot = false
-      setTimeout(() => {
-        this.canShoot = true
-      }, 300) // 300 ms de cooldown
-      const direction = this.lastDirection === 'right' ? 1 : -1
-
-      const projectileX = this.x + this.width / 2
-      const projectileY = this.y + this.height / 2
-
-      projectiles.push(new Projectile(projectileX, projectileY, direction))
-
-      this.currentSprite = this.sprites.shoot
-      this.currentFrame = 0
-  }
+    const projectile = new Projectile({
+        x: this.x + this.width / 2,
+        y: this.y + this.height / 2,
+        velocity: this.lastDirection === 'right' ? { x: 300, y: 0 } : { x: -300, y: 0 },
+        width: 10,
+        height: 5,
+    }); 
+    projectiles.push(projectile);
+}
 
   updateHorizontalPosition(deltaTime) {
     this.x += this.velocity.x * deltaTime
@@ -274,7 +269,7 @@ class Player {
   stopDodge() {
     this.velocity.x = 0
     this.isRolling = false
-    this.isInAirAfterRolling = false
+    this.isInAirAfterAfterRolling = false
     this.isInvincible = false
   }
 
