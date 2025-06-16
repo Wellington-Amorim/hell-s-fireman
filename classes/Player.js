@@ -19,6 +19,8 @@ class Player {
     this.elapsedTime = 0
     this.currentFrame = 0
     this.lastDirection = "right"
+    this.jumpCount = 0
+    this.isInAir = false
     this.sprites = {
       idle: {
         x: 0,
@@ -225,8 +227,12 @@ class Player {
   }
 
   jump() {
-    this.velocity.y = -JUMP_POWER
-    this.isOnGround = false
+    if (this.jumpCount < 2) {
+      this.velocity.y = -JUMP_POWER
+      this.isOnGround = false
+      this.jumpCount++
+      this.isInAir = true
+    }
   }
 
   shoot() {
@@ -328,6 +334,8 @@ class Player {
           this.y = collisionBlock.y - this.height - buffer
           this.hitbox.y = collisionBlock.y - this.hitbox.height - buffer
           this.isOnGround = true
+          this.jumpCount = 0
+          this.isInAir = false
 
           if (!this.isDodging) this.isInAirAfterDodging = false
           break
@@ -343,6 +351,8 @@ class Player {
         this.velocity.y = 0
         this.y = platform.y - this.height - buffer
         this.isOnGround = true
+        this.jumpCount = 0
+        this.isInAir = false
         return
       }
     }

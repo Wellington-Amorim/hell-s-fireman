@@ -59,22 +59,35 @@
     }
 
     #play-button {
-      padding: 15px 60px;
-      font-size: 24px;
-      background-color: #c93600;
-      color: white;
-      border: 3px solid #970c0c;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: 'Arial', sans-serif;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
-      margin-bottom: 20px;
+      
     }
 
     #play-button:hover {
-      background-color: #a0382d;
-      transform: scale(1.1);
+      
+    }
+
+    #main-menu-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px; /* Espaçamento entre os botões */
+      position: absolute;
+      bottom: 40px;
+    }
+
+    .menu-button {
+      width: 200px; /* Largura padrão dos botões */
+      height: auto;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .menu-button:hover {
+      transform: scale(1.1); /* Efeito de UI scale ao passar o mouse */
+    }
+
+    .menu-button:active {
+      transform: scale(0.9); /* Efeito de UI scale ao clicar */
     }
 
     #game-container {
@@ -104,7 +117,11 @@
   </button>
 
   <div id="start-screen">
-    <button id="play-button">Play</button>
+    <div id="main-menu-buttons">
+      <img id="play-button" src="./images/ButtonPlay.png" alt="Play Game" class="menu-button">
+      <img id="credits-button" src="./images/buttonCredits.png" alt="Credits" class="menu-button">
+      <img id="exit-button" src="./images/buttonExit.png" alt="Exit Game" class="menu-button">
+    </div>
   </div>
 
   <audio id="background-music" loop>
@@ -208,10 +225,21 @@
     });
 
     // Código existente do botão play
-    document.getElementById('play-button').addEventListener('click', function() {
-      document.getElementById('start-screen').style.display = 'none';
-      document.getElementById('game-container').style.display = 'block';
-      document.querySelector('canvas').style.display = 'block';
+    // Código para os botões da tela inicial
+    document.getElementById("play-button").addEventListener("click", function() {
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("game-container").style.display = "block";
+      document.querySelector("canvas").style.display = "block";
+    });
+
+    document.getElementById("credits-button").addEventListener("click", function() {
+      // Implementar funcionalidade de créditos aqui
+      window.location.href = 'credits.html';
+    });
+
+    document.getElementById("exit-button").addEventListener("click", function() {
+      // Implementar funcionalidade de sair aqui
+      window.close(); // Tenta fechar a janela/aba do navegador
     });
   </script>
 </body>
