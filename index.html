@@ -137,6 +137,7 @@
   <script src="./classes/Eagle.js"></script>
   <script src="./classes/Sprite.js"></script>
   <script src="./classes/Heart.js"></script>
+  <script src="./classes/Boss.js"></script>
   <script src="./js/index.js"></script>
   <script src="./js/eventListeners.js"></script>
 
@@ -157,7 +158,7 @@
     async function startBackgroundMusic() {
       try {
         // Define o volume inicial
-        backgroundMusic.volume = 0.5;
+        backgroundMusic.volume = 0.1;
         // Tenta iniciar a música
         await backgroundMusic.play();
         updateSoundIcon(true);

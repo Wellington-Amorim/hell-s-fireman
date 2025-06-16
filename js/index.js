@@ -179,8 +179,15 @@ let gemUI = new Sprite({
   },
 })
 let gemCount = 0
+let player
+let oposums
+let eagles
+let boss
+let sprites
+let hearts
 
 function init() {
+  console.log('Iniciando o jogo...')
   gems = []
   gemCount = 0
   gemUI = new Sprite({
@@ -236,58 +243,67 @@ function init() {
   })
   projectiles = []
   eagles = [
-    new Eagle({
-      x: 816,
-      y: 172,
-      width: 40,
-      height: 41,
-    }),
+    // new Eagle({
+    //   x: 816,
+    //   y: 72,
+    //   width: 40,
+    //   height: 41,
+    // }),
   ]
 
   oposums = [
-    new Oposum({
-      x: 450,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 600,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 650,
-      y: 100,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 890,
-      y: 150,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 906,
-      y: 515,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 1150,
-      y: 515,
-      width: 36,
-      height: 28,
-    }),
-    new Oposum({
-      x: 1663,
-      y: 200,
-      width: 36,
-      height: 28,
-    }),
+    // new Oposum({
+    //   x: 450,
+    //   y: 100,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 600,
+    //   y: 100,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 650,
+    //   y: 100,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 890,
+    //   y: 150,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 906,
+    //   y: 515,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 1150,
+    //   y: 515,
+    //   width: 36,
+    //   height: 28,
+    // }),
+    // new Oposum({
+    //   x: 1663,
+    //   y: 200,
+    //   width: 36,
+    //   height: 28,
+    // }),
   ]
+
+  boss = new Boss({
+    x: 750,
+    y: 100,
+    width: 128,
+    height: 128,
+  })
+  boss.setPlayer(player)
+  console.log('Boss criado:', boss)
 
   sprites = []
   hearts = [
@@ -415,6 +431,32 @@ function animate(backgroundCanvas) {
         }
       }  
     }
+    // Verifica colisão com o Boss
+    if (projectile.hitbox && boss && boss.hitbox) {
+      if (checkCollisions(projectile, boss)) {
+        const bossTookDamage = boss.takeDamage(1);
+        if (bossTookDamage) {
+          sprites.push(
+            new Sprite({
+              x: boss.x,
+              y: boss.y,
+              width: 64,
+              height: 56,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+        }
+        projectiles.splice(i, 1);
+        break;
+      }
+    }
     // Verifica colisão com paredes. Não está funcionando ainda
     for (let j = 0; j < collisionBlocks.length; j++) {
       const collisionBlock = collisionBlocks[j];
@@ -454,7 +496,40 @@ function animate(backgroundCanvas) {
     }
   }
 
-  // Update eagle position
+  // Update and draw boss
+  if (boss) {
+    console.log('Atualizando Boss:', {
+      x: boss.x,
+      y: boss.y,
+      isImageLoaded: boss.isImageLoaded,
+      currentFrame: boss.currentFrame
+    })
+    boss.update(deltaTime, collisionBlocks)
+  } else {
+    console.log('Boss não existe!')
+  }
+
+  // Check collision with boss
+  const bossCollisionDirection = checkCollisions(player, boss)
+  if (bossCollisionDirection) {
+    if (
+      bossCollisionDirection === 'left' ||
+      bossCollisionDirection === 'right' ||
+      bossCollisionDirection === 'top'
+    ) {
+      const fullHearts = hearts.filter((heart) => {
+        return !heart.depleted
+      })
+
+      if (!player.isInvincible && fullHearts.length > 0) {
+        fullHearts[fullHearts.length - 1].depleted = true
+        player.setIsInvincible()
+      } else if (fullHearts.length === 0) {
+        init()
+      }
+    }
+  }
+
   for (let i = eagles.length - 1; i >= 0; i--) {
     const eagle = eagles[i]
     eagle.update(deltaTime, collisionBlocks)
@@ -582,6 +657,11 @@ function animate(backgroundCanvas) {
   for (let i = eagles.length - 1; i >= 0; i--) {
     const eagle = eagles[i]
     eagle.draw(c)
+  }
+
+  // Draw boss
+  if (boss) {
+    boss.draw(c)
   }
 
   for (let i = sprites.length - 1; i >= 0; i--) {
