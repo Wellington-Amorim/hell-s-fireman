@@ -1,5 +1,5 @@
-const BOSS_X_VELOCITY = -20
-const BOSS_JUMP_POWER = 250
+const BOSS_X_VELOCITY = -35
+const BOSS_JUMP_POWER = 300
 const BOSS_GRAVITY = 580
 
 class Boss {
@@ -15,13 +15,13 @@ class Boss {
     this.velocity = velocity
     this.isOnGround = false
     this.isImageLoaded = false
-    this.maxHealth = 30
+    this.maxHealth = 50
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
-    this.detectionRange = 300 // Distância em pixels para detectar o player
+    this.detectionRange = 400
     this.isFollowingPlayer = false
-    this.player = null // Referência ao player será definida depois
+    this.player = null
     this.image = new Image()
     this.image.onload = () => {
       console.log('Boss image loaded successfully')
@@ -106,20 +106,20 @@ class Boss {
       c.fillRect(barX, barY, currentBarWidth, barHeight)
     }
 
-    // Red square debug code
-    c.fillStyle = 'rgba(255, 0, 0, 0.5)'
-    c.fillRect(this.x, this.y, this.width, this.height)
+    // // Red square debug code
+    // c.fillStyle = 'rgba(255, 0, 0, 0.5)'
+    // c.fillRect(this.x, this.y, this.width, this.height)
 
-    // Hitbox - só desenha se existir
-    if (this.hitbox) {
-      c.fillStyle = 'rgba(0, 0, 255, 0.5)'
-      c.fillRect(
-        this.hitbox.x,
-        this.hitbox.y,
-        this.hitbox.width,
-        this.hitbox.height,
-      )
-    }
+    // // Hitbox - só desenha se existir
+    // if (this.hitbox) {
+    //   c.fillStyle = 'rgba(0, 0, 255, 0.5)'
+    //   c.fillRect(
+    //     this.hitbox.x,
+    //     this.hitbox.y,
+    //     this.hitbox.width,
+    //     this.hitbox.height,
+    //   )
+    // }
 
     if (this.isImageLoaded === true) {
       let xScale = 1

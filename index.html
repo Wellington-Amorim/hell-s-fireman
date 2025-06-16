@@ -60,26 +60,26 @@
 
     #main-menu-buttons {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 20px; /* Espaçamento entre os botões */
+      gap: 20px;
       position: absolute;
       bottom: 40px;
     }
 
     .menu-button {
-      width: 200px; /* Largura padrão dos botões */
+      width: 120px;
       height: auto;
       cursor: pointer;
       transition: transform 0.2s ease-in-out;
     }
 
     .menu-button:hover {
-      transform: scale(1.1); /* Efeito de UI scale ao passar o mouse */
+      transform: scale(1.05);
     }
 
     .menu-button:active {
-      transform: scale(0.9); /* Efeito de UI scale ao clicar */
+      transform: scale(0.95);
     }
 
     #game-container {

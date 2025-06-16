@@ -416,189 +416,38 @@ function init() {
     }),
   ]
 
-  // Adiciona gemas em locais estratégicos
-  gems = [
-    new Sprite({
-      x: 500,
-      y: 100,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 500,
-        y: 100,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 800,
-      y: 150,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 800,
-        y: 150,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 1200,
-      y: 200,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 1200,
-        y: 200,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 1600,
-      y: 300,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 1600,
-        y: 300,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 1900,
-      y: 350,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 1900,
-        y: 350,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 2200,
-      y: 250,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 2200,
-        y: 250,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 2500,
-      y: 300,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 2500,
-        y: 300,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 2800,
-      y: 200,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 2800,
-        y: 200,
-        width: 15,
-        height: 13,
-      },
-    }),
-    new Sprite({
-      x: 3100,
-      y: 150,
-      width: 15,
-      height: 13,
-      imageSrc: './images/gem.png',
-      spriteCropbox: {
-        x: 0,
-        y: 0,
-        width: 15,
-        height: 13,
-        frames: 5,
-      },
-      hitbox: {
-        x: 3100,
-        y: 150,
-        width: 15,
-        height: 13,
-      },
-    }),
-  ]
+  // Adiciona gemas
+  for (let i = 0; i < 200; i++) {
+    // Distribui as gemas em diferentes alturas e posições
+    const x = Math.random() * 3500 // Distribui ao longo do mapa
+    const y = Math.random() * 400 + 50 // Altura entre 50 e 450
+    
+    // Verifica se a posição está em uma plataforma válida
+    const isOnPlatform = platforms.some(platform => {
+      return x >= platform.x && 
+             x <= platform.x + platform.width && 
+             y >= platform.y - 20 && 
+             y <= platform.y + 20
+    })
+
+    // Se estiver em uma plataforma válida, adiciona a gema
+    if (isOnPlatform) {
+      gems.push(
+        new Sprite({
+          position: {
+            x: x,
+            y: y
+          },
+          imageSrc: './images/gems.png',
+          frameRate: 6,
+          frameBuffer: 5,
+          loop: true,
+          autoplay: true,
+          scale: 0.5
+        })
+      )
+    }
+  }
 
   boss = new Boss({
     x: 1500,
