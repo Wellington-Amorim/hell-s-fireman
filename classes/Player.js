@@ -45,7 +45,7 @@ class Player {
         x: 32 * 8,
         y: 32 * 9,
         width: 33,
-        height: 40,
+        height: 46,
         frames: 1,
       },
       roll: {
