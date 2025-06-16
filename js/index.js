@@ -5,6 +5,33 @@ const dpr = 2
 canvas.width = 1024 * dpr
 canvas.height = 576 * dpr
 
+let gameStartTime = null
+let timerElement = document.getElementById('timer')
+let enemiesDefeated = 0
+
+function showVictoryScreen() {
+  const victoryScreen = document.getElementById('victory-screen')
+  const finalTime = document.getElementById('final-time')
+  const enemiesDefeatedElement = document.getElementById('enemies-defeated')
+  const gemsCollectedElement = document.getElementById('gems-collected')
+
+  // Atualiza as estatísticas
+  finalTime.textContent = formatTime(performance.now() - gameStartTime)
+  enemiesDefeatedElement.textContent = enemiesDefeated
+  gemsCollectedElement.textContent = gemCount
+
+  // Mostra a tela de vitória
+  victoryScreen.style.display = 'flex'
+}
+
+// Adiciona o evento de clique no botão de reiniciar
+document.getElementById('restart-button').addEventListener('click', function() {
+  document.getElementById('victory-screen').style.display = 'none'
+  init()
+  gameStartTime = performance.now()
+  enemiesDefeated = 0
+})
+
 const oceanLayerData = {
   l_New_Layer_1: l_New_Layer_1,
 }
@@ -18,7 +45,6 @@ const layersData = {
   l_Back_Tiles: l_Back_Tiles,
   l_Decorations: l_Decorations,
   l_Front_Tiles: l_Front_Tiles,
-  l_Shrooms: l_Shrooms,
   l_Collisions: l_Collisions,
   l_Grass: l_Grass,
   l_Trees: l_Trees,
@@ -31,7 +57,6 @@ const tilesets = {
   l_Back_Tiles: { imageUrl: './images/tileset.png', tileSize: 16 },
   l_Decorations: { imageUrl: './images/decorations.png', tileSize: 16 },
   l_Front_Tiles: { imageUrl: './images/tileset.png', tileSize: 16 },
-  l_Shrooms: { imageUrl: './images/decorations.png', tileSize: 16 },
   l_Collisions: { imageUrl: './images/decorations.png', tileSize: 16 },
   l_Grass: { imageUrl: './images/tileset.png', tileSize: 16 },
   l_Trees: { imageUrl: './images/decorations.png', tileSize: 16 },
@@ -181,8 +206,30 @@ let gemUI = new Sprite({
   },
 })
 let gemCount = 0
+let player
+let oposums
+let eagles
+let boss
+let sprites
+let hearts
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+}
+
+function updateTimer() {
+  if (gameStartTime) {
+    const currentTime = performance.now()
+    const elapsedTime = currentTime - gameStartTime
+    timerElement.textContent = formatTime(elapsedTime)
+  }
+}
 
 function init() {
+  console.log('Iniciando o jogo...')
   gems = []
   gemCount = 0
   gemUI = new Sprite({
@@ -240,7 +287,43 @@ function init() {
   eagles = [
     new Eagle({
       x: 816,
-      y: 172,
+      y: 72,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1200,
+      y: 150,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1500,
+      y: 200,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1800,
+      y: 100,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2200,
+      y: 150,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2500,
+      y: 200,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2800,
+      y: 100,
       width: 40,
       height: 41,
     }),
@@ -289,7 +372,92 @@ function init() {
       width: 36,
       height: 28,
     }),
+    new Oposum({
+      x: 1400,
+      y: 300,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 1700,
+      y: 400,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2000,
+      y: 350,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2300,
+      y: 250,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2600,
+      y: 300,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2900,
+      y: 200,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 3200,
+      y: 150,
+      width: 36,
+      height: 28,
+    }),
   ]
+
+  // Adiciona gemas
+  for (let i = 0; i < 200; i++) {
+    // Distribui as gemas em diferentes alturas e posições
+    const x = Math.random() * 3500 // Distribui ao longo do mapa
+    const y = Math.random() * 400 + 50 // Altura entre 50 e 450
+    
+    // Verifica se a posição está em uma plataforma válida
+    const isOnPlatform = platforms.some(platform => {
+      return x >= platform.x && 
+             x <= platform.x + platform.width && 
+             y >= platform.y - 20 && 
+             y <= platform.y + 20
+    })
+
+    // Se estiver em uma plataforma válida, adiciona a gema
+    if (isOnPlatform) {
+      gems.push(
+        new Sprite({
+          position: {
+            x: x,
+            y: y
+          },
+          imageSrc: './images/gems.png',
+          frameRate: 6,
+          frameBuffer: 5,
+          loop: true,
+          autoplay: true,
+          scale: 0.5
+        })
+      )
+    }
+  }
+
+  boss = new Boss({
+    x: 1500,
+    y: 1500,
+    width: 128,
+    height: 128,
+  })
+  
+  boss.setPlayer(player)
+  console.log('Boss criado:', boss)
 
   sprites = []
   hearts = [
@@ -349,6 +517,9 @@ function animate(backgroundCanvas) {
   const deltaTime = (currentTime - lastTime) / 1000
   lastTime = currentTime
 
+  // Atualiza o timer
+  updateTimer()
+
   // Atualiza a posição do player
   player.handleInput(keys)
   player.update(deltaTime, collisionBlocks)
@@ -386,6 +557,7 @@ function animate(backgroundCanvas) {
           );
           oposums.splice(j, 1);
           projectiles.splice(i, 1);
+          enemiesDefeated++;
           break;
         }
       }  
@@ -413,9 +585,38 @@ function animate(backgroundCanvas) {
           );
           eagles.splice(j, 1);
           projectiles.splice(i, 1);
+          enemiesDefeated++;
           break;
         }
       }  
+    }
+    // Verifica colisão com o Boss
+    if (projectile.hitbox && boss && boss.hitbox) {
+      if (checkCollisions(projectile, boss)) {
+        const bossTookDamage = boss.takeDamage(1);
+        if (bossTookDamage) {
+          sprites.push(
+            new Sprite({
+              x: boss.x,
+              y: boss.y,
+              width: 64,
+              height: 56,
+              imageSrc: './images/enemy-death.png',
+              spriteCropbox: {
+                x: 0,
+                y: 0,
+                width: 40,
+                height: 41,
+                frames: 6,
+              },
+            })
+          );
+          enemiesDefeated++;
+          showVictoryScreen();
+        }
+        projectiles.splice(i, 1);
+        break;
+      }
     }
     // Verifica colisão com paredes. Não está funcionando ainda
     for (let j = 0; j < collisionBlocks.length; j++) {
@@ -451,12 +652,47 @@ function animate(backgroundCanvas) {
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
+          gameStartTime = performance.now()
         }
       }
     }
   }
 
-  // Update eagle position
+  // Update and draw boss
+  if (boss) {
+    console.log('Atualizando Boss:', {
+      x: boss.x,
+      y: boss.y,
+      isImageLoaded: boss.isImageLoaded,
+      currentFrame: boss.currentFrame
+    })
+    boss.update(deltaTime, collisionBlocks)
+  } else {
+    console.log('Boss não existe!')
+  }
+
+  // Check collision with boss
+  const bossCollisionDirection = checkCollisions(player, boss)
+  if (bossCollisionDirection) {
+    if (
+      bossCollisionDirection === 'left' ||
+      bossCollisionDirection === 'right' ||
+      bossCollisionDirection === 'top'
+    ) {
+      const fullHearts = hearts.filter((heart) => {
+        return !heart.depleted
+      })
+
+      if (!player.isInvincible && fullHearts.length > 0) {
+        fullHearts[fullHearts.length - 1].depleted = true
+        player.setIsInvincible()
+      } else if (fullHearts.length === 0) {
+        init()
+        gameStartTime = performance.now()
+      }
+    }
+  }
+
   for (let i = eagles.length - 1; i >= 0; i--) {
     const eagle = eagles[i]
     eagle.update(deltaTime, collisionBlocks)
@@ -478,6 +714,7 @@ function animate(backgroundCanvas) {
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
+          gameStartTime = performance.now()
         }
       }
     }
@@ -523,6 +760,7 @@ function animate(backgroundCanvas) {
 
       if (gems.length === 0) {
         console.log('YOU WIN!')
+        showVictoryScreen()
       }
     }
   }
@@ -586,6 +824,11 @@ function animate(backgroundCanvas) {
     eagle.draw(c)
   }
 
+  // Draw boss
+  if (boss) {
+    boss.draw(c)
+  }
+
   for (let i = sprites.length - 1; i >= 0; i--) {
     const sprite = sprites[i]
     sprite.draw(c)
@@ -631,3 +874,16 @@ const startRendering = async () => {
 
 init()
 startRendering()
+
+document.getElementById("play-button").addEventListener("click", function() {
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("game-container").style.display = "block";
+  document.querySelector("canvas").style.display = "block";
+  // Inicia o timer quando o jogo começa
+  gameStartTime = performance.now();
+  
+  // Esconde a mensagem de objetivo após 5 segundos
+  setTimeout(() => {
+    document.getElementById("objective").style.display = "none";
+  }, 5000);
+});

@@ -21,6 +21,10 @@ class Player {
     this.lastDirection = "right"
     this.jumpCount = 0
     this.isInAir = false
+    this.isDashing = false
+    this.dashDuration = 0.2
+    this.dashTimer = 0
+    this.dashSpeed = 500
     this.sprites = {
       idle: {
         x: 0,
@@ -47,15 +51,8 @@ class Player {
         x: 32 * 8,
         y: 32 * 9,
         width: 33,
-        height: 40,
+        height: 46,
         frames: 1,
-      },
-      roll: {
-        x: 32 * 9,
-        y: 32 * 9,
-        width: 32,
-        height: 38,
-        frames: 4,
       },
       shoot: {
         x: 0, 
@@ -133,6 +130,16 @@ class Player {
   update(deltaTime, collisionBlocks) {
     if (!deltaTime) return
 
+    // Atualiza o timer do dash
+    if (this.isDashing) {
+      this.dashTimer += deltaTime
+      if (this.dashTimer >= this.dashDuration) {
+        this.isDashing = false
+        this.isInvincible = false
+        this.velocity.x = 0
+      }
+    }
+
     // Updating animation frames
     this.elapsedTime += deltaTime
     const secondsInterval = 0.4
@@ -168,13 +175,11 @@ class Player {
   }
 
   dodge() {
-    if (this.isOnGround) {
-      this.currentSprite = this.sprites.roll
-      this.currentFrame = 0
-      this.isRolling = true
-      this.isInAirAfterRolling = true
-      this.velocity.x = this.facing === 'right' ? 300 : -300
+    if (!this.isDashing) {
+      this.isDashing = true
+      this.dashTimer = 0
       this.isInvincible = true
+      this.velocity.x = this.facing === 'right' ? this.dashSpeed : -this.dashSpeed
     }
   }
 
@@ -261,7 +266,7 @@ class Player {
   }
 
   handleInput(keys) {
-    if (this.isRolling || this.isInAirAfterRolling) return
+    if (this.isDashing) return
 
     this.velocity.x = 0
 
@@ -270,13 +275,6 @@ class Player {
     } else if (keys.a.pressed || keys.arrowLeft.pressed) {
       this.velocity.x = -X_VELOCITY
     }
-  }
-
-  stopDodge() {
-    this.velocity.x = 0
-    this.isDodging = false
-    this.isInAirAfterDodging = false
-    this.isInvincible = false
   }
 
   checkForHorizontalCollisions(collisionBlocks) {

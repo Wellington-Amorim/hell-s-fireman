@@ -58,36 +58,28 @@
       object-fit: contain;
     }
 
-    #play-button {
-      
-    }
-
-    #play-button:hover {
-      
-    }
-
     #main-menu-buttons {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 20px; /* Espaçamento entre os botões */
+      gap: 20px;
       position: absolute;
       bottom: 40px;
     }
 
     .menu-button {
-      width: 200px; /* Largura padrão dos botões */
+      width: 120px;
       height: auto;
       cursor: pointer;
       transition: transform 0.2s ease-in-out;
     }
 
     .menu-button:hover {
-      transform: scale(1.1); /* Efeito de UI scale ao passar o mouse */
+      transform: scale(1.05);
     }
 
     .menu-button:active {
-      transform: scale(0.9); /* Efeito de UI scale ao clicar */
+      transform: scale(0.95);
     }
 
     #game-container {
@@ -109,6 +101,83 @@
       font-family: cursive;
       z-index: 1000;
     }
+
+    #timer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-family: cursive;
+      font-size: 24px;
+      z-index: 1000;
+    }
+
+    #objective {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      color: white;
+      font-family: cursive;
+      font-size: 18px;
+      z-index: 1000;
+      text-align: right;
+      max-width: 300px;
+    }
+
+    #victory-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      font-family: cursive;
+    }
+
+    #victory-content {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      border: 2px solid gold;
+    }
+
+    #victory-title {
+      font-size: 48px;
+      color: gold;
+      margin-bottom: 20px;
+    }
+
+    #victory-stats {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    #victory-stats p {
+      margin: 10px 0;
+    }
+
+    #restart-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 20px;
+      background-color: gold;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #restart-button:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -124,6 +193,18 @@
     </div>
   </div>
 
+  <div id="victory-screen">
+    <div id="victory-content">
+      <h1 id="victory-title">VITÓRIA!</h1>
+      <div id="victory-stats">
+        <p>Tempo: <span id="final-time">00:00</span></p>
+        <p>Inimigos derrotados: <span id="enemies-defeated">0</span></p>
+        <p>Gemas coletadas: <span id="gems-collected">0</span></p>
+      </div>
+      <button id="restart-button">Jogar Novamente</button>
+    </div>
+  </div>
+
   <audio id="background-music" loop>
     <source src="./musica1.mp3" type="audio/mp3">
   </audio>
@@ -131,6 +212,8 @@
   <div id="game-container">
     <canvas style="image-rendering: pixelated"></canvas>
     <p id="game-instructions">Use WAD ou as Setinhas para se mover, Shift para esquivar e Espaço atacar</p>
+    <div id="timer">00:00</div>
+    <div id="objective">Derrote todos os inimigos no menor tempo possível!</div>
   </div>
 
   <script src="./data/l_New_Layer_1.js"></script>
@@ -154,6 +237,7 @@
   <script src="./classes/Eagle.js"></script>
   <script src="./classes/Sprite.js"></script>
   <script src="./classes/Heart.js"></script>
+  <script src="./classes/Boss.js"></script>
   <script src="./js/index.js"></script>
   <script src="./js/eventListeners.js"></script>
 
@@ -174,7 +258,7 @@
     async function startBackgroundMusic() {
       try {
         // Define o volume inicial
-        backgroundMusic.volume = 0.5;
+        backgroundMusic.volume = 0.1;
         // Tenta iniciar a música
         await backgroundMusic.play();
         updateSoundIcon(true);
@@ -224,12 +308,17 @@
       }
     });
 
-    // Código existente do botão play
     // Código para os botões da tela inicial
     document.getElementById("play-button").addEventListener("click", function() {
       document.getElementById("start-screen").style.display = "none";
       document.getElementById("game-container").style.display = "block";
       document.querySelector("canvas").style.display = "block";
+      // Inicia o timer quando o jogo começa
+      gameStartTime = performance.now();
+      // Esconde a mensagem de objetivo após 5 segundos
+      setTimeout(() => {
+        document.getElementById("objective").style.display = "none";
+      }, 5000);
     });
 
     document.getElementById("credits-button").addEventListener("click", function() {
