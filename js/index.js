@@ -5,6 +5,33 @@ const dpr = 2
 canvas.width = 1024 * dpr
 canvas.height = 576 * dpr
 
+let gameStartTime = null
+let timerElement = document.getElementById('timer')
+let enemiesDefeated = 0
+
+function showVictoryScreen() {
+  const victoryScreen = document.getElementById('victory-screen')
+  const finalTime = document.getElementById('final-time')
+  const enemiesDefeatedElement = document.getElementById('enemies-defeated')
+  const gemsCollectedElement = document.getElementById('gems-collected')
+
+  // Atualiza as estatísticas
+  finalTime.textContent = formatTime(performance.now() - gameStartTime)
+  enemiesDefeatedElement.textContent = enemiesDefeated
+  gemsCollectedElement.textContent = gemCount
+
+  // Mostra a tela de vitória
+  victoryScreen.style.display = 'flex'
+}
+
+// Adiciona o evento de clique no botão de reiniciar
+document.getElementById('restart-button').addEventListener('click', function() {
+  document.getElementById('victory-screen').style.display = 'none'
+  init()
+  gameStartTime = performance.now()
+  enemiesDefeated = 0
+})
+
 const oceanLayerData = {
   l_New_Layer_1: l_New_Layer_1,
 }
@@ -186,6 +213,21 @@ let boss
 let sprites
 let hearts
 
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+}
+
+function updateTimer() {
+  if (gameStartTime) {
+    const currentTime = performance.now()
+    const elapsedTime = currentTime - gameStartTime
+    timerElement.textContent = formatTime(elapsedTime)
+  }
+}
+
 function init() {
   console.log('Iniciando o jogo...')
   gems = []
@@ -243,65 +285,328 @@ function init() {
   })
   projectiles = []
   eagles = [
-    // new Eagle({
-    //   x: 816,
-    //   y: 72,
-    //   width: 40,
-    //   height: 41,
-    // }),
+    new Eagle({
+      x: 816,
+      y: 72,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1200,
+      y: 150,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1500,
+      y: 200,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 1800,
+      y: 100,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2200,
+      y: 150,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2500,
+      y: 200,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 2800,
+      y: 100,
+      width: 40,
+      height: 41,
+    }),
   ]
 
   oposums = [
-    // new Oposum({
-    //   x: 450,
-    //   y: 100,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 600,
-    //   y: 100,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 650,
-    //   y: 100,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 890,
-    //   y: 150,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 906,
-    //   y: 515,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 1150,
-    //   y: 515,
-    //   width: 36,
-    //   height: 28,
-    // }),
-    // new Oposum({
-    //   x: 1663,
-    //   y: 200,
-    //   width: 36,
-    //   height: 28,
-    // }),
+    new Oposum({
+      x: 450,
+      y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 600,
+      y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 650,
+      y: 100,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 890,
+      y: 150,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 906,
+      y: 515,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 1150,
+      y: 515,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 1663,
+      y: 200,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 1400,
+      y: 300,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 1700,
+      y: 400,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2000,
+      y: 350,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2300,
+      y: 250,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2600,
+      y: 300,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 2900,
+      y: 200,
+      width: 36,
+      height: 28,
+    }),
+    new Oposum({
+      x: 3200,
+      y: 150,
+      width: 36,
+      height: 28,
+    }),
+  ]
+
+  // Adiciona gemas em locais estratégicos
+  gems = [
+    new Sprite({
+      x: 500,
+      y: 100,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 500,
+        y: 100,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 800,
+      y: 150,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 800,
+        y: 150,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 1200,
+      y: 200,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 1200,
+        y: 200,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 1600,
+      y: 300,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 1600,
+        y: 300,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 1900,
+      y: 350,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 1900,
+        y: 350,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 2200,
+      y: 250,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 2200,
+        y: 250,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 2500,
+      y: 300,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 2500,
+        y: 300,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 2800,
+      y: 200,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 2800,
+        y: 200,
+        width: 15,
+        height: 13,
+      },
+    }),
+    new Sprite({
+      x: 3100,
+      y: 150,
+      width: 15,
+      height: 13,
+      imageSrc: './images/gem.png',
+      spriteCropbox: {
+        x: 0,
+        y: 0,
+        width: 15,
+        height: 13,
+        frames: 5,
+      },
+      hitbox: {
+        x: 3100,
+        y: 150,
+        width: 15,
+        height: 13,
+      },
+    }),
   ]
 
   boss = new Boss({
-    x: 750,
-    y: 100,
+    x: 1500,
+    y: 1500,
     width: 128,
     height: 128,
   })
+  
   boss.setPlayer(player)
   console.log('Boss criado:', boss)
 
@@ -363,6 +668,9 @@ function animate(backgroundCanvas) {
   const deltaTime = (currentTime - lastTime) / 1000
   lastTime = currentTime
 
+  // Atualiza o timer
+  updateTimer()
+
   // Atualiza a posição do player
   player.handleInput(keys)
   player.update(deltaTime, collisionBlocks)
@@ -400,6 +708,7 @@ function animate(backgroundCanvas) {
           );
           oposums.splice(j, 1);
           projectiles.splice(i, 1);
+          enemiesDefeated++;
           break;
         }
       }  
@@ -427,6 +736,7 @@ function animate(backgroundCanvas) {
           );
           eagles.splice(j, 1);
           projectiles.splice(i, 1);
+          enemiesDefeated++;
           break;
         }
       }  
@@ -452,6 +762,8 @@ function animate(backgroundCanvas) {
               },
             })
           );
+          enemiesDefeated++;
+          showVictoryScreen();
         }
         projectiles.splice(i, 1);
         break;
@@ -491,6 +803,7 @@ function animate(backgroundCanvas) {
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
+          gameStartTime = performance.now()
         }
       }
     }
@@ -526,6 +839,7 @@ function animate(backgroundCanvas) {
         player.setIsInvincible()
       } else if (fullHearts.length === 0) {
         init()
+        gameStartTime = performance.now()
       }
     }
   }
@@ -551,6 +865,7 @@ function animate(backgroundCanvas) {
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
           init()
+          gameStartTime = performance.now()
         }
       }
     }
@@ -596,6 +911,7 @@ function animate(backgroundCanvas) {
 
       if (gems.length === 0) {
         console.log('YOU WIN!')
+        showVictoryScreen()
       }
     }
   }
@@ -709,3 +1025,16 @@ const startRendering = async () => {
 
 init()
 startRendering()
+
+document.getElementById("play-button").addEventListener("click", function() {
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("game-container").style.display = "block";
+  document.querySelector("canvas").style.display = "block";
+  // Inicia o timer quando o jogo começa
+  gameStartTime = performance.now();
+  
+  // Esconde a mensagem de objetivo após 5 segundos
+  setTimeout(() => {
+    document.getElementById("objective").style.display = "none";
+  }, 5000);
+});
