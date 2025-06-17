@@ -22,11 +22,11 @@ window.addEventListener('keydown', (event) => {
       keys.arrowLeft.pressed = true
       player.lastDirection = 'left'
       break
-    case 'Shift':
-      player.dodge()
+    case 'Enter': 
+      player.shoot()
       break
     case ' ': 
-      player.shoot()
+      player.dodge()
       break
   }
 })
