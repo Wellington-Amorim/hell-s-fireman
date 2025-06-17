@@ -455,6 +455,13 @@
       { time: 30, text: "<span class='speaker'>Deus:</span><br>— Como você é um bombeiro, eu quero que você me ajude a apagar de uma vez por todas o fogo do inferno, e todo o mal que ali existe. Você está disposto a tal ato, Firewel?" }
     ];
 
+    const cutscene3Texts = [
+      { time: 0, text: "O chefe dos demônios aparece diante de Firewel, com um olhar de desprezo e ódio." },
+      { time: 5, text: "<span class='speaker'>Chefe dos Demônios:</span><br>— Então você é o escolhido de Deus? O bombeiro que vai apagar o fogo do inferno?" },
+      { time: 10, text: "<span class='speaker'>Firewel:</span><br>— Sim, e não vou deixar que você continue espalhando o mal por aí!" },
+      { time: 15, text: "<span class='speaker'>Chefe dos Demônios:</span><br>— Hahaha! Vamos ver se você consegue, pequeno bombeiro!" }
+    ];
+
     function updateCutsceneText(texts, currentTime) {
       const currentText = texts.find(text => text.time <= currentTime && text.time + 5 > currentTime);
       if (currentText) {
@@ -484,11 +491,32 @@
           cutsceneVideo.ontimeupdate = () => {
             updateCutsceneText(cutscene2Texts, cutsceneVideo.currentTime);
           };
-        } else {
+        } else if (currentCutscene === 2) {
           startGame();
         }
       };
     }
+
+    function playBossCutscene() {
+      cutsceneContainer.style.display = 'block';
+      gameContainer.style.display = 'none';
+      backgroundMusic.pause();
+      cutsceneVideo.src = './video/cutscene3.mp4';
+      cutsceneVideo.play();
+
+      cutsceneVideo.ontimeupdate = () => {
+        updateCutsceneText(cutscene3Texts, cutsceneVideo.currentTime);
+      };
+
+      cutsceneVideo.onended = () => {
+        cutsceneContainer.style.display = 'none';
+        gameContainer.style.display = 'block';
+        backgroundMusic.play();
+      };
+    }
+
+    // Torna a função playBossCutscene global
+    window.playBossCutscene = playBossCutscene;
 
     function startGame() {
       cutsceneContainer.style.display = 'none';
@@ -504,7 +532,13 @@
     }
 
     skipButton.addEventListener('click', () => {
-      startGame();
+      if (currentCutscene === 1 || currentCutscene === 2) {
+        startGame();
+      } else {
+        cutsceneContainer.style.display = 'none';
+        gameContainer.style.display = 'block';
+        backgroundMusic.play();
+      }
     });
   </script>
 </body>
