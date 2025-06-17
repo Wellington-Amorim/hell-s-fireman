@@ -137,21 +137,29 @@ class Boss {
         
         // Ajusta o volume baseado na distância do player
         if (this.player) {
-          const distanceToPlayer = Math.abs(this.x - this.player.x)
+          const distanceX = Math.abs(this.x - this.player.x)
+          const distanceY = Math.abs(this.y - this.player.y)
           const maxDistance = this.detectionRange
-          const volume = Math.max(0, 1 - (distanceToPlayer / maxDistance))
-          randomSound.volume = volume * 0.7 // Volume máximo de 0.7
+          
+          // Calcula a distância total usando o teorema de Pitágoras
+          const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+          
+          // Só toca o som se estiver dentro do alcance total
+          if (totalDistance <= maxDistance) {
+            const volume = Math.max(0, 1 - (totalDistance / maxDistance))
+            randomSound.volume = volume * 0.7 // Volume máximo de 0.7
+            
+            // Reseta o áudio e toca
+            randomSound.currentTime = 0
+            randomSound.play()
+              .then(() => {
+                console.log('Som do Boss tocado com sucesso')
+              })
+              .catch(error => {
+                console.error('Erro ao tocar som do Boss:', error)
+              })
+          }
         }
-        
-        // Reseta o áudio e toca
-        randomSound.currentTime = 0
-        randomSound.play()
-          .then(() => {
-            console.log('Som do Boss tocado com sucesso')
-          })
-          .catch(error => {
-            console.error('Erro ao tocar som do Boss:', error)
-          })
       } else {
         console.log('Música de fundo está pausada, não tocando som do Boss')
       }
