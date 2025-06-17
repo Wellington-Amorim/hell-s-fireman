@@ -20,8 +20,10 @@ class Boss {
     this.isAlive = true
     this.isDying = false
     this.detectionRange = 600
+    this.cutsceneRange = 300 // Distância para ativar a cutscene
     this.isFollowingPlayer = false
     this.player = null
+    this.hasPlayedCutscene = false // Flag para controlar se a cutscene já foi reproduzida
     this.image = new Image()
     this.image.onload = () => {
       console.log('Boss image loaded successfully')
@@ -247,6 +249,21 @@ class Boss {
     if (this.elapsedTime > secondsInterval) {
       this.currentFrame = (this.currentFrame + 1) % this.currentSprite.frames
       this.elapsedTime = 0
+    }
+
+    // Verifica a distância do player para ativar a cutscene
+    if (this.player && !this.hasPlayedCutscene) {
+      const distanceX = Math.abs(this.x - this.player.x)
+      const distanceY = Math.abs(this.y - this.player.y)
+      const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+
+      if (totalDistance <= this.cutsceneRange) {
+        this.hasPlayedCutscene = true
+        // Chama a função global playBossCutscene
+        if (typeof window.playBossCutscene === 'function') {
+          window.playBossCutscene()
+        }
+      }
     }
 
     // Update hitbox position
