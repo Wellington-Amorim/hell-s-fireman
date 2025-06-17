@@ -228,6 +228,40 @@
     #skip-button:hover {
       opacity: 1;
     }
+
+    #cutscene-text {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: cursive;
+      font-size: 18px;
+      max-width: 80%;
+      text-align: center;
+      line-height: 1.5;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 1600;
+    }
+
+    #cutscene-text.visible {
+      opacity: 1;
+    }
+
+    #cutscene-text p {
+      margin: 0;
+      padding: 0;
+    }
+
+    #cutscene-text .speaker {
+      color: #ffd700;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -257,6 +291,7 @@
 
   <div id="cutscene-container">
     <video id="cutscene-video" src="./video/cutscene1.mp4"></video>
+    <div id="cutscene-text"></div>
     <button id="skip-button">Pular Cutscene</button>
   </div>
 
@@ -390,22 +425,65 @@
     let currentCutscene = 1;
     const cutsceneContainer = document.getElementById('cutscene-container');
     const cutsceneVideo = document.getElementById('cutscene-video');
+    const cutsceneText = document.getElementById('cutscene-text');
     const skipButton = document.getElementById('skip-button');
     const startScreen = document.getElementById('start-screen');
     const gameContainer = document.getElementById('game-container');
 
+    const cutscene1Texts = [
+      { time: 0, text: "Em 1987, em uma cidade chamada Sírius, onde a violência e o crime imperavam, nasce um bebê que mudaria para sempre o destino daquele lugar: o seu nome é Firewel." },
+      { time: 10, text: "Desde criança, ele aparentava ser diferente, como se ele não pertencesse àquele local, sempre ajudava os animais, seja alimentando-os ou dando muito amor e carinho, ajudava senhorinhas a atravessar a rua e a carregar suas compras até suas respectivas casas." },
+      { time: 20, text: "Mesmo tendo nascido no pior lugar possível, lá estava Firewel, uma alma boa, uma pessoa que nunca falava um palavrão sequer, sempre seguindo o caminho de Deus e seus ensinamentos." },
+      { time: 30, text: "Ao atingir certa idade, Firewel decide então virar bombeiro, para ajudar a todos que precisarem de sua ajuda." },
+      { time: 40, text: "Na vida adulta, todos o chamavam de \"O grande heroi\" ou \"O anjo que caminha sobre o inferno\", mas ele recusava esses títulos, pois ele falava que era só uma pessoa comum que estava ali para ajudar aqueles que precisavam de sua ajuda." },
+      { time: 50, text: "Um certo dia, ele estava preste a terminar sua milésima ação bem sucedida contra incêndios, ele caminhava sobre as chamas intensas, com duas crianças em seu braço, uma de 10 anos e a outra sendo um bebe de apenas 1 ano..." },
+      { time: 60, text: "...quando uma viga em chamas cai em suas costa, com um fogo tão ardente que consumia tudo." },
+      { time: 70, text: "Nesse momento, Firewel sabia que somente ele ou as crianças sairiam vivos dali, e rapidamente ele fez sua escolha suportando o fogo e o peso da viga em sua costa." },
+      { time: 80, text: "Então ele grita se referindo à menina mais velha:" },
+      { time: 85, text: "— PEGUE SUA IRMÃ E SAI DESTE LUGAR! EU VOU PROTEGER VOCÊS!" },
+      { time: 90, text: "As crianças saem rapidamente do local, mas Firewel não." },
+      { time: 100, text: "Ao apagar as chamas do local, o heroi, o anjo do fogo, se mostrou que era apenas uma pessoa comum como sempre disse, ali estava seu corpo pulverizado com o fogo que o queimou." }
+    ];
+
+    const cutscene2Texts = [
+      { time: 0, text: "Firewel começa a abrir seus olhos, e percebe que se encontra no paraíso." },
+      { time: 5, text: "E então, por ser uma boa pessoa, senão a melhor pessoa, Deus o chama a seus aposentos e os dois começam um diálogo." },
+      { time: 10, text: "<span class='speaker'>Deus:</span><br>— Você é um ser tão bondoso, pena que teve um final triste." },
+      { time: 15, text: "<span class='speaker'>Firewel:</span><br>— Não diria que foi triste, pois no final eu salvei aquelas duas vidas, meu Senhor." },
+      { time: 20, text: "<span class='speaker'>Deus:</span><br>— Você, Firewel, é o único que pode realizar meu pedido!" },
+      { time: 25, text: "<span class='speaker'>Firewel:</span><br>— E qual seria esse pedido meu Senhor?" },
+      { time: 30, text: "<span class='speaker'>Deus:</span><br>— Como você é um bombeiro, eu quero que você me ajude a apagar de uma vez por todas o fogo do inferno, e todo o mal que ali existe. Você está disposto a tal ato, Firewel?" }
+    ];
+
+    function updateCutsceneText(texts, currentTime) {
+      const currentText = texts.find(text => text.time <= currentTime && text.time + 5 > currentTime);
+      if (currentText) {
+        cutsceneText.innerHTML = currentText.text;
+        cutsceneText.classList.add('visible');
+      } else {
+        cutsceneText.classList.remove('visible');
+      }
+    }
+
     function playCutscenes() {
       cutsceneContainer.style.display = 'block';
       startScreen.style.display = 'none';
-      backgroundMusic.pause(); // Pausa a música durante as cutscenes
+      backgroundMusic.pause();
       cutsceneVideo.src = './video/cutscene1.mp4';
       cutsceneVideo.play();
+
+      cutsceneVideo.ontimeupdate = () => {
+        updateCutsceneText(cutscene1Texts, cutsceneVideo.currentTime);
+      };
 
       cutsceneVideo.onended = () => {
         if (currentCutscene === 1) {
           currentCutscene = 2;
           cutsceneVideo.src = './video/cutscene2.mp4';
           cutsceneVideo.play();
+          cutsceneVideo.ontimeupdate = () => {
+            updateCutsceneText(cutscene2Texts, cutsceneVideo.currentTime);
+          };
         } else {
           startGame();
         }
@@ -416,11 +494,10 @@
       cutsceneContainer.style.display = 'none';
       gameContainer.style.display = 'block';
       document.querySelector("canvas").style.display = "block";
-      cutsceneVideo.pause(); // Pausa o vídeo da cutscene
-      backgroundMusic.play(); // Retoma a música quando o jogo começa
-      // Inicia o timer quando o jogo começa
+      cutsceneVideo.pause();
+      cutsceneText.classList.remove('visible');
+      backgroundMusic.play();
       gameStartTime = performance.now();
-      // Esconde a mensagem de objetivo após 5 segundos
       setTimeout(() => {
         document.getElementById("objective").style.display = "none";
       }, 5000);

@@ -1,4 +1,4 @@
-const BOSS_X_VELOCITY = -45
+const BOSS_X_VELOCITY = -90
 const BOSS_JUMP_POWER = 300
 const BOSS_GRAVITY = 580
 
@@ -19,7 +19,7 @@ class Boss {
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
-    this.detectionRange = 200
+    this.detectionRange = 600
     this.isFollowingPlayer = false
     this.player = null
     this.image = new Image()
