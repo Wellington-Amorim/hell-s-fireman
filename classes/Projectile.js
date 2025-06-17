@@ -19,7 +19,15 @@ class Projectile {
     this.hitbox.y = this.y;
   }
   draw(c) {
-    c.fillStyle = 'blue'; // Uma cor diferente do azul, tipo amarelo
+    c.fillStyle = 'blue'; // Mudando para amarelo como sugerido no comentário
     c.fillRect(this.x, this.y, this.width, this.height);
+  }
+  checkCollision(collisionBlock) {
+    return (
+      this.hitbox.x <= collisionBlock.x + collisionBlock.width &&
+      this.hitbox.x + this.hitbox.width >= collisionBlock.x &&
+      this.hitbox.y + this.hitbox.height >= collisionBlock.y &&
+      this.hitbox.y <= collisionBlock.y + collisionBlock.height
+    );
   }
 }

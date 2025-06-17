@@ -299,7 +299,7 @@ function init() {
     }),
     new Eagle({
       x: 1500,
-      y: 200,
+      y: 63,
       width: 40,
       height: 41,
     }),
@@ -324,6 +324,24 @@ function init() {
     new Eagle({
       x: 2800,
       y: 100,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 380,
+      y: 879,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 370,
+      y: 880,
+      width: 40,
+      height: 41,
+    }),
+    new Eagle({
+      x: 400,
+      y: 990,
       width: 40,
       height: 41,
     }),
@@ -367,20 +385,20 @@ function init() {
       height: 28,
     }),
     new Oposum({
-      x: 1663,
-      y: 200,
+      x: 1480,
+      y: 511,
       width: 36,
       height: 28,
     }),
     new Oposum({
-      x: 1400,
-      y: 300,
+      x: 1590,
+      y: 511,
       width: 36,
       height: 28,
     }),
     new Oposum({
       x: 1700,
-      y: 400,
+      y: 767,
       width: 36,
       height: 28,
     }),
@@ -455,6 +473,15 @@ function init() {
     width: 128,
     height: 128,
   })
+
+  // boss = new Boss({
+  //   x: 490,
+  //   y: 100,
+  //   width: 128,
+  //   height: 128,
+  // })
+
+  
   
   boss.setPlayer(player)
   console.log('Boss criado:', boss)
@@ -519,6 +546,9 @@ function animate(backgroundCanvas) {
 
   // Atualiza o timer
   updateTimer()
+
+  // Atualiza as coordenadas do player
+  document.getElementById('coordinates').textContent = `X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`
 
   // Atualiza a posição do player
   player.handleInput(keys)
@@ -618,14 +648,12 @@ function animate(backgroundCanvas) {
         break;
       }
     }
-    // Verifica colisão com paredes. Não está funcionando ainda
+    // Verifica colisão com paredes
     for (let j = 0; j < collisionBlocks.length; j++) {
       const collisionBlock = collisionBlocks[j];
-      if (projectile.hitbox && collisionBlock.hitbox) {
-        if (checkCollisions(projectile, collisionBlock)) {
-          projectiles.splice(i, 1)
-          break
-        }
+      if (projectile.checkCollision(collisionBlock)) {
+        projectiles.splice(i, 1);
+        break;
       }
     }
   }
@@ -757,11 +785,6 @@ function animate(backgroundCanvas) {
       // Remove as gemas da tela
       gems.splice(i, 1)
       gemCount++
-
-      if (gems.length === 0) {
-        console.log('YOU WIN!')
-        showVictoryScreen()
-      }
     }
   }
 

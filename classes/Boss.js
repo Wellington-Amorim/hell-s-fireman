@@ -1,4 +1,4 @@
-const BOSS_X_VELOCITY = -35
+const BOSS_X_VELOCITY = -45
 const BOSS_JUMP_POWER = 300
 const BOSS_GRAVITY = 580
 
@@ -15,7 +15,7 @@ class Boss {
     this.velocity = velocity
     this.isOnGround = false
     this.isImageLoaded = false
-    this.maxHealth = 50
+    this.maxHealth = 100
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
@@ -33,39 +33,39 @@ class Boss {
     console.log('Tentando carregar imagem do Boss:', './images/boss.png')
     this.image.src = './images/boss.png'
     console.log('Boss initialized at position:', { x, y })
-    this.elapsedTime = 0
-    this.currentFrame = 0
+    this.elapsedTime = 100
+    this.currentFrame = 1000
     this.sprites = {
       idle: {
-        x: 0,
+        x: 100,
         y: 0,
         width: 128,
         height: 128,
         frames: 7,
       },
       walk: {
-        x: 9,
+        x: 4,
         y: 228,
         width: 94,
-        height: 98,
-        frames: 12,
+        height: 92,
+        frames: 6,
       },
       attack: {
-        x: 0,
+        x: 100,
         y: 256,
         width: 128,
         height: 128,
         frames: 8,
       },
       hit: {
-        x: 0,
+        x: 100,
         y: 384,
         width: 128,
         height: 128,
         frames: 4,
       },
       death: {
-        x: 0,
+        x: 100,
         y: 512,
         width: 128,
         height: 128,
@@ -77,8 +77,8 @@ class Boss {
     this.hitbox = {
       x: this.x + 20,
       y: this.y + 20,
-      width: 110,
-      height: 104,
+      width: 98,
+      height: 108,
     }
     this.distanceTraveled = 0
     this.turningDistance = turningDistance
@@ -132,9 +132,13 @@ class Boss {
 
       c.save()
       c.scale(xScale, 1)
+      
+      // Calculando a posição do frame atual
+      const frameX = this.currentSprite.x + (this.currentSprite.width * Math.floor(this.currentFrame))
+      
       c.drawImage(
         this.image,
-        this.currentSprite.x + this.currentSprite.width * this.currentFrame,
+        frameX,
         this.currentSprite.y,
         this.currentSprite.width,
         this.currentSprite.height,
@@ -155,7 +159,7 @@ class Boss {
 
     // Updating animation frames
     this.elapsedTime += deltaTime
-    const secondsInterval = 0.1
+    const secondsInterval = 0.05 // Reduzindo o intervalo para uma animação mais fluida
 
     if (this.elapsedTime > secondsInterval) {
       this.currentFrame = (this.currentFrame + 1) % this.currentSprite.frames
@@ -220,9 +224,9 @@ class Boss {
 
   determineDirection() {
     if (this.velocity.x > 0) {
-      this.facing = 'left'
-    } else if (this.velocity.x < 0) {
       this.facing = 'right'
+    } else if (this.velocity.x < 0) {
+      this.facing = 'left'
     }
   }
 
