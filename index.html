@@ -416,6 +416,7 @@
       cutsceneContainer.style.display = 'none';
       gameContainer.style.display = 'block';
       document.querySelector("canvas").style.display = "block";
+      cutsceneVideo.pause(); // Pausa o vídeo da cutscene
       backgroundMusic.play(); // Retoma a música quando o jogo começa
       // Inicia o timer quando o jogo começa
       gameStartTime = performance.now();
