@@ -679,6 +679,10 @@ function animate(backgroundCanvas) {
           fullHearts[fullHearts.length - 1].depleted = true
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
+          // Troca a música quando o jogador morre
+          if (typeof window.switchMusic === 'function') {
+            window.switchMusic();
+          }
           init()
           gameStartTime = performance.now()
         }
@@ -715,6 +719,10 @@ function animate(backgroundCanvas) {
         fullHearts[fullHearts.length - 1].depleted = true
         player.setIsInvincible()
       } else if (fullHearts.length === 0) {
+        // Troca a música quando o jogador morre
+        if (typeof window.switchMusic === 'function') {
+          window.switchMusic();
+        }
         init()
         gameStartTime = performance.now()
       }
@@ -741,6 +749,10 @@ function animate(backgroundCanvas) {
           fullHearts[fullHearts.length - 1].depleted = true
           player.setIsInvincible()
         } else if (fullHearts.length === 0) {
+          // Troca a música quando o jogador morre
+          if (typeof window.switchMusic === 'function') {
+            window.switchMusic();
+          }
           init()
           gameStartTime = performance.now()
         }
