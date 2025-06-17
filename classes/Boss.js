@@ -90,28 +90,46 @@ class Boss {
     // Sons do Boss
     this.ameacaDoBoss = document.getElementById('ameacaDoBoss')
     this.risosDoBoss = document.getElementById('risosDoBoss')
+    this.risadaDoProfessor = document.getElementById('risadaDoProfessor')
     
     // Verifica se os elementos de áudio foram encontrados
-    if (!this.ameacaDoBoss || !this.risosDoBoss) {
-      console.error('Elementos de áudio do Boss não encontrados!')
+    if (!this.ameacaDoBoss || !this.risosDoBoss || !this.risadaDoProfessor) {
+      console.error('Elementos de áudio do Boss não encontrados!', {
+        ameacaDoBoss: !!this.ameacaDoBoss,
+        risosDoBoss: !!this.risosDoBoss,
+        risadaDoProfessor: !!this.risadaDoProfessor
+      })
     } else {
       console.log('Elementos de áudio do Boss encontrados')
       
       // Configura os eventos de áudio
-      this.ameacaDoBoss.addEventListener('canplaythrough', () => {
-        console.log('Áudio de ameaça do Boss carregado')
-      })
-      this.risosDoBoss.addEventListener('canplaythrough', () => {
-        console.log('Áudio de risos do Boss carregado')
-      })
+      const setupAudio = (audio, name) => {
+        audio.addEventListener('canplaythrough', () => {
+          console.log(`Áudio ${name} carregado e pronto para tocar`)
+        })
+        
+        audio.addEventListener('error', (error) => {
+          console.error(`Erro ao carregar áudio ${name}:`, error)
+        })
+        
+        audio.addEventListener('play', () => {
+          console.log(`Áudio ${name} começou a tocar`)
+        })
+        
+        audio.addEventListener('pause', () => {
+          console.log(`Áudio ${name} pausado`)
+        })
+        
+        // Configura o volume
+        audio.volume = 0.7
+        
+        // Pré-carrega o áudio
+        audio.load()
+      }
       
-      // Configura o volume
-      this.ameacaDoBoss.volume = 0.7
-      this.risosDoBoss.volume = 0.7
-      
-      // Pré-carrega os áudios
-      this.ameacaDoBoss.load()
-      this.risosDoBoss.load()
+      setupAudio(this.ameacaDoBoss, 'ameacaDoBoss')
+      setupAudio(this.risosDoBoss, 'risosDoBoss')
+      setupAudio(this.risadaDoProfessor, 'risadaDoProfessor')
     }
     
     this.lastSoundTime = 0
@@ -133,9 +151,15 @@ class Boss {
       // Verifica se o som está ativado
       const backgroundMusic = document.getElementById('background-music')
       if (!backgroundMusic.paused) {
-        // Escolhe aleatoriamente entre os dois sons
-        const sounds = [this.ameacaDoBoss, this.risosDoBoss]
+        // Escolhe aleatoriamente entre os três sons
+        const sounds = [this.ameacaDoBoss, this.risosDoBoss, this.risadaDoProfessor]
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
+        
+        console.log('Tentando tocar som do Boss:', {
+          somEscolhido: randomSound.id,
+          volume: randomSound.volume,
+          estado: randomSound.paused ? 'pausado' : 'tocando'
+        })
         
         // Ajusta o volume baseado na distância do player
         if (this.player) {
@@ -153,13 +177,26 @@ class Boss {
             
             // Reseta o áudio e toca
             randomSound.currentTime = 0
-            randomSound.play()
-              .then(() => {
-                console.log('Som do Boss tocado com sucesso')
-              })
-              .catch(error => {
-                console.error('Erro ao tocar som do Boss:', error)
-              })
+            
+            // Tenta tocar o som e verifica se há erro
+            const playPromise = randomSound.play()
+            
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  console.log('Som do Boss tocado com sucesso:', randomSound.id)
+                })
+                .catch(error => {
+                  console.error('Erro ao tocar som do Boss:', error, 'Som:', randomSound.id)
+                  // Tenta recarregar o áudio e tocar novamente
+                  randomSound.load()
+                  randomSound.play()
+                    .then(() => console.log('Som recarregado e tocado com sucesso:', randomSound.id))
+                    .catch(err => console.error('Erro ao tentar tocar som recarregado:', err))
+                })
+            }
+          } else {
+            console.log('Jogador fora do alcance para tocar som:', totalDistance, '>', maxDistance)
           }
         }
       } else {
