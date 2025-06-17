@@ -627,14 +627,12 @@ function animate(backgroundCanvas) {
         break;
       }
     }
-    // Verifica colisão com paredes. Não está funcionando ainda
+    // Verifica colisão com paredes
     for (let j = 0; j < collisionBlocks.length; j++) {
       const collisionBlock = collisionBlocks[j];
-      if (projectile.hitbox && collisionBlock.hitbox) {
-        if (checkCollisions(projectile, collisionBlock)) {
-          projectiles.splice(i, 1)
-          break
-        }
+      if (projectile.checkCollision(collisionBlock)) {
+        projectiles.splice(i, 1);
+        break;
       }
     }
   }

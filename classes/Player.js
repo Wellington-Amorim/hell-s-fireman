@@ -25,6 +25,8 @@ class Player {
     this.dashDuration = 0.2
     this.dashTimer = 0
     this.dashSpeed = 500
+    this.lastShotTime = 0
+    this.shootCooldown = 0.5
     this.sprites = {
       idle: {
         x: 0,
@@ -241,15 +243,19 @@ class Player {
   }
 
   shoot() {
-    const projectile = new Projectile({
+    const currentTime = performance.now() / 1000;
+    if (currentTime - this.lastShotTime >= this.shootCooldown) {
+      const projectile = new Projectile({
         x: this.x + this.width / 2,
         y: this.y + this.height / 2,
         velocity: this.lastDirection === 'right' ? { x: 300, y: 0 } : { x: -300, y: 0 },
         width: 10,
         height: 5,
-    }); 
-    projectiles.push(projectile);
-}
+      }); 
+      projectiles.push(projectile);
+      this.lastShotTime = currentTime;
+    }
+  }
 
   updateHorizontalPosition(deltaTime) {
     this.x += this.velocity.x * deltaTime
