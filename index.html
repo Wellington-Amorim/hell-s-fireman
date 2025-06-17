@@ -191,6 +191,43 @@
     #restart-button:hover {
       transform: scale(1.1);
     }
+
+    #cutscene-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      z-index: 1500;
+    }
+
+    #cutscene-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    #skip-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: cursive;
+      z-index: 1600;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    #skip-button:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -216,6 +253,11 @@
       </div>
       <button id="restart-button">Jogar Novamente</button>
     </div>
+  </div>
+
+  <div id="cutscene-container">
+    <video id="cutscene-video" src="./video/cutscene1.mp4"></video>
+    <button id="skip-button">Pular Cutscene</button>
   </div>
 
   <audio id="background-music" loop>
@@ -332,15 +374,7 @@
 
     // Código para os botões da tela inicial
     document.getElementById("play-button").addEventListener("click", function() {
-      document.getElementById("start-screen").style.display = "none";
-      document.getElementById("game-container").style.display = "block";
-      document.querySelector("canvas").style.display = "block";
-      // Inicia o timer quando o jogo começa
-      gameStartTime = performance.now();
-      // Esconde a mensagem de objetivo após 5 segundos
-      setTimeout(() => {
-        document.getElementById("objective").style.display = "none";
-      }, 5000);
+      playCutscenes();
     });
 
     document.getElementById("credits-button").addEventListener("click", function() {
@@ -351,6 +385,48 @@
     document.getElementById("exit-button").addEventListener("click", function() {
       // Implementar funcionalidade de sair aqui
       window.close(); // Tenta fechar a janela/aba do navegador
+    });
+
+    let currentCutscene = 1;
+    const cutsceneContainer = document.getElementById('cutscene-container');
+    const cutsceneVideo = document.getElementById('cutscene-video');
+    const skipButton = document.getElementById('skip-button');
+    const startScreen = document.getElementById('start-screen');
+    const gameContainer = document.getElementById('game-container');
+
+    function playCutscenes() {
+      cutsceneContainer.style.display = 'block';
+      startScreen.style.display = 'none';
+      backgroundMusic.pause(); // Pausa a música durante as cutscenes
+      cutsceneVideo.src = './video/cutscene1.mp4';
+      cutsceneVideo.play();
+
+      cutsceneVideo.onended = () => {
+        if (currentCutscene === 1) {
+          currentCutscene = 2;
+          cutsceneVideo.src = './video/cutscene2.mp4';
+          cutsceneVideo.play();
+        } else {
+          startGame();
+        }
+      };
+    }
+
+    function startGame() {
+      cutsceneContainer.style.display = 'none';
+      gameContainer.style.display = 'block';
+      document.querySelector("canvas").style.display = "block";
+      backgroundMusic.play(); // Retoma a música quando o jogo começa
+      // Inicia o timer quando o jogo começa
+      gameStartTime = performance.now();
+      // Esconde a mensagem de objetivo após 5 segundos
+      setTimeout(() => {
+        document.getElementById("objective").style.display = "none";
+      }, 5000);
+    }
+
+    skipButton.addEventListener('click', () => {
+      startGame();
     });
   </script>
 </body>
