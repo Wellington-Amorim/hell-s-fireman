@@ -299,12 +299,20 @@
     <source src="./musica1.mp3" type="audio/mp3">
   </audio>
 
+  <audio id="background-music-2" loop>
+    <source src="./musica2.mp3" type="audio/mp3">
+  </audio>
+
   <audio id="ameacaDoBoss">
     <source src="./sounds/ameacaDoBoss.mp3" type="audio/mp3">
   </audio>
 
   <audio id="risosDoBoss">
     <source src="./sounds/risosDoBoss.mp3" type="audio/mp3">
+  </audio>
+
+  <audio id="risadaDoProfessor">
+    <source src="./sounds/risadaDoProfessor.mp3" type="audio/mp3">
   </audio>
 
   <div id="game-container">
@@ -345,7 +353,9 @@
     const soundButton = document.getElementById('sound-button');
     const soundImage = soundButton.querySelector('img');
     const backgroundMusic = document.getElementById('background-music');
+    const backgroundMusic2 = document.getElementById('background-music-2');
     let isMusicPlaying = false;
+    let currentMusic = 1;
 
     // Função para atualizar o ícone de som
     function updateSoundIcon(isPlaying) {
@@ -353,11 +363,27 @@
       isMusicPlaying = isPlaying;
     }
 
+    // Função para alternar entre as músicas
+    function switchMusic() {
+      if (currentMusic === 1) {
+        backgroundMusic.pause();
+        backgroundMusic2.currentTime = 0;
+        backgroundMusic2.play();
+        currentMusic = 2;
+      } else {
+        backgroundMusic2.pause();
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play();
+        currentMusic = 1;
+      }
+    }
+
     // Função para tentar iniciar a música
     async function startBackgroundMusic() {
       try {
         // Define o volume inicial
         backgroundMusic.volume = 0.1;
+        backgroundMusic2.volume = 0.1;
         // Tenta iniciar a música
         await backgroundMusic.play();
         updateSoundIcon(true);
@@ -396,14 +422,29 @@
       updateSoundIcon(false);
     });
 
+    backgroundMusic2.addEventListener('play', () => {
+      updateSoundIcon(true);
+    });
+
+    backgroundMusic2.addEventListener('pause', () => {
+      updateSoundIcon(false);
+    });
+
     // Alterna o estado da música
     soundButton.addEventListener('click', () => {
       if (isMusicPlaying) {
         backgroundMusic.pause();
+        backgroundMusic2.pause();
       } else {
-        backgroundMusic.play().catch(() => {
-          updateSoundIcon(false);
-        });
+        if (currentMusic === 1) {
+          backgroundMusic.play().catch(() => {
+            updateSoundIcon(false);
+          });
+        } else {
+          backgroundMusic2.play().catch(() => {
+            updateSoundIcon(false);
+          });
+        }
       }
     });
 
@@ -476,6 +517,7 @@
       cutsceneContainer.style.display = 'block';
       startScreen.style.display = 'none';
       backgroundMusic.pause();
+      backgroundMusic2.pause();
       cutsceneVideo.src = './video/cutscene1.mp4';
       cutsceneVideo.play();
 
@@ -501,6 +543,7 @@
       cutsceneContainer.style.display = 'block';
       gameContainer.style.display = 'none';
       backgroundMusic.pause();
+      backgroundMusic2.pause();
       cutsceneVideo.src = './video/cutscene3.mp4';
       cutsceneVideo.play();
 
@@ -511,7 +554,11 @@
       cutsceneVideo.onended = () => {
         cutsceneContainer.style.display = 'none';
         gameContainer.style.display = 'block';
-        backgroundMusic.play();
+        if (currentMusic === 1) {
+          backgroundMusic.play();
+        } else {
+          backgroundMusic2.play();
+        }
       };
     }
 
@@ -524,7 +571,11 @@
       document.querySelector("canvas").style.display = "block";
       cutsceneVideo.pause();
       cutsceneText.classList.remove('visible');
-      backgroundMusic.play();
+      if (currentMusic === 1) {
+        backgroundMusic.play();
+      } else {
+        backgroundMusic2.play();
+      }
       gameStartTime = performance.now();
       setTimeout(() => {
         document.getElementById("objective").style.display = "none";
@@ -537,9 +588,16 @@
       } else {
         cutsceneContainer.style.display = 'none';
         gameContainer.style.display = 'block';
-        backgroundMusic.play();
+        if (currentMusic === 1) {
+          backgroundMusic.play();
+        } else {
+          backgroundMusic2.play();
+        }
       }
     });
+
+    // Torna a função switchMusic global para ser acessível pelo jogo
+    window.switchMusic = switchMusic;
   </script>
 </body>
 </html>
