@@ -19,7 +19,7 @@ class Boss {
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
-    this.detectionRange = 400
+    this.detectionRange = 200
     this.isFollowingPlayer = false
     this.player = null
     this.image = new Image()
@@ -84,6 +84,81 @@ class Boss {
     this.turningDistance = turningDistance
     this.isInvincible = false
     this.invincibilityTime = 0
+
+    // Sons do Boss
+    this.ameacaDoBoss = document.getElementById('ameacaDoBoss')
+    this.risosDoBoss = document.getElementById('risosDoBoss')
+    
+    // Verifica se os elementos de áudio foram encontrados
+    if (!this.ameacaDoBoss || !this.risosDoBoss) {
+      console.error('Elementos de áudio do Boss não encontrados!')
+    } else {
+      console.log('Elementos de áudio do Boss encontrados')
+      
+      // Configura os eventos de áudio
+      this.ameacaDoBoss.addEventListener('canplaythrough', () => {
+        console.log('Áudio de ameaça do Boss carregado')
+      })
+      this.risosDoBoss.addEventListener('canplaythrough', () => {
+        console.log('Áudio de risos do Boss carregado')
+      })
+      
+      // Configura o volume
+      this.ameacaDoBoss.volume = 0.7
+      this.risosDoBoss.volume = 0.7
+      
+      // Pré-carrega os áudios
+      this.ameacaDoBoss.load()
+      this.risosDoBoss.load()
+    }
+    
+    this.lastSoundTime = 0
+    this.soundCooldown = 0
+    this.setRandomSoundCooldown()
+    this.wasPlayerInRange = false
+  }
+
+  setRandomSoundCooldown() {
+    // Define um tempo aleatório entre 1 e 3 segundos
+    this.soundCooldown = Math.random() * 2 + 1
+  }
+
+  playRandomSound(forcePlay = false) {
+    if (!this.isAlive) return
+
+    const currentTime = performance.now() / 1000
+    if (forcePlay || currentTime - this.lastSoundTime >= this.soundCooldown) {
+      // Verifica se o som está ativado
+      const backgroundMusic = document.getElementById('background-music')
+      if (!backgroundMusic.paused) {
+        // Escolhe aleatoriamente entre os dois sons
+        const sounds = [this.ameacaDoBoss, this.risosDoBoss]
+        const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
+        
+        // Ajusta o volume baseado na distância do player
+        if (this.player) {
+          const distanceToPlayer = Math.abs(this.x - this.player.x)
+          const maxDistance = this.detectionRange
+          const volume = Math.max(0, 1 - (distanceToPlayer / maxDistance))
+          randomSound.volume = volume * 0.7 // Volume máximo de 0.7
+        }
+        
+        // Reseta o áudio e toca
+        randomSound.currentTime = 0
+        randomSound.play()
+          .then(() => {
+            console.log('Som do Boss tocado com sucesso')
+          })
+          .catch(error => {
+            console.error('Erro ao tocar som do Boss:', error)
+          })
+      } else {
+        console.log('Música de fundo está pausada, não tocando som do Boss')
+      }
+      
+      this.lastSoundTime = currentTime
+      this.setRandomSoundCooldown()
+    }
   }
 
   draw(c) {
@@ -173,7 +248,20 @@ class Boss {
     // Verifica se o player está próximo
     if (this.player) {
       const distanceToPlayer = Math.abs(this.x - this.player.x)
-      this.isFollowingPlayer = distanceToPlayer < this.detectionRange
+      const isPlayerInRange = distanceToPlayer < this.detectionRange
+      
+      // Se o player acabou de entrar no alcance, força um som
+      if (isPlayerInRange && !this.wasPlayerInRange) {
+        this.playRandomSound(true)
+      }
+      
+      this.isFollowingPlayer = isPlayerInRange
+      this.wasPlayerInRange = isPlayerInRange
+
+      // Toca os sons quando o player está próximo
+      if (this.isFollowingPlayer) {
+        this.playRandomSound()
+      }
 
       if (this.isFollowingPlayer) {
         // Move em direção ao player
