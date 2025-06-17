@@ -455,6 +455,15 @@ function init() {
     width: 128,
     height: 128,
   })
+
+  // boss = new Boss({
+  //   x: 490,
+  //   y: 100,
+  //   width: 128,
+  //   height: 128,
+  // })
+
+  
   
   boss.setPlayer(player)
   console.log('Boss criado:', boss)
