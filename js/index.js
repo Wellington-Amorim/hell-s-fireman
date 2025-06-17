@@ -764,11 +764,6 @@ function animate(backgroundCanvas) {
       // Remove as gemas da tela
       gems.splice(i, 1)
       gemCount++
-
-      if (gems.length === 0) {
-        console.log('YOU WIN!')
-        showVictoryScreen()
-      }
     }
   }
 
