@@ -26,7 +26,7 @@ class Player {
     this.dashTimer = 0
     this.dashSpeed = 500
     this.lastShotTime = 0
-    this.shootCooldown = 0.5
+    this.shootCooldown = 0.2
     this.sprites = {
       idle: {
         x: 0,
