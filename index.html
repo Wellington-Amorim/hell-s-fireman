@@ -503,6 +503,14 @@
       { time: 15, text: "<span class='speaker'>Chefe dos Demônios:</span><br>— Hahaha! Vamos ver se você consegue, pequeno bombeiro!" }
     ];
 
+    const cutscene4Texts = [
+      { time: 0, text: "Após uma batalha intensa, o chefe dos demônios cai derrotado." },
+      { time: 5, text: "<span class='speaker'>Chefe dos Demônios:</span><br>— Não... não pode ser... como um simples bombeiro conseguiu me derrotar?" },
+      { time: 10, text: "<span class='speaker'>Firewel:</span><br>— Porque eu não sou apenas um bombeiro. Sou o escolhido de Deus para trazer a paz ao inferno!" },
+      { time: 15, text: "<span class='speaker'>Chefe dos Demônios:</span><br>— Você não entende... eu era o Professor Hugo... o homem que ensinou tantos jovens... como pude me tornar isso?" },
+      { time: 20, text: "<span class='speaker'>Firewel:</span><br>— O poder do mal corrompeu seu coração, Professor. Mas agora você pode descansar em paz." }
+    ];
+
     function updateCutsceneText(texts, currentTime) {
       const currentText = texts.find(text => text.time <= currentTime && text.time + 5 > currentTime);
       if (currentText) {
@@ -562,8 +570,28 @@
       };
     }
 
-    // Torna a função playBossCutscene global
+    function playBossDeathCutscene() {
+      cutsceneContainer.style.display = 'block';
+      gameContainer.style.display = 'none';
+      backgroundMusic.pause();
+      backgroundMusic2.pause();
+      cutsceneVideo.src = './video/cutscene4.mp4';
+      cutsceneVideo.play();
+
+      cutsceneVideo.ontimeupdate = () => {
+        updateCutsceneText(cutscene4Texts, cutsceneVideo.currentTime);
+      };
+
+      cutsceneVideo.onended = () => {
+        cutsceneContainer.style.display = 'none';
+        gameContainer.style.display = 'block';
+        showVictoryScreen();
+      };
+    }
+
+    // Torna as funções globais para serem acessíveis pelo jogo
     window.playBossCutscene = playBossCutscene;
+    window.playBossDeathCutscene = playBossDeathCutscene;
 
     function startGame() {
       cutsceneContainer.style.display = 'none';

@@ -15,7 +15,7 @@ class Boss {
     this.velocity = velocity
     this.isOnGround = false
     this.isImageLoaded = false
-    this.maxHealth = 50
+    this.maxHealth = 30
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
@@ -493,11 +493,11 @@ class Boss {
     this.currentFrame = 0
     this.elapsedTime = 0
     
-    // Após a animação de morte terminar, removemos o boss
+    // Após a animação de morte terminar, reproduz a cutscene 4
     setTimeout(() => {
       this.isDying = false
-      if (typeof this.onDeath === 'function') {
-        this.onDeath()
+      if (typeof window.playBossDeathCutscene === 'function') {
+        window.playBossDeathCutscene()
       }
     }, 1000) // Tempo suficiente para a animação de morte
   }

@@ -642,7 +642,6 @@ function animate(backgroundCanvas) {
             })
           );
           enemiesDefeated++;
-          showVictoryScreen();
         }
         projectiles.splice(i, 1);
         break;
