@@ -15,7 +15,7 @@ class Boss {
     this.velocity = velocity
     this.isOnGround = false
     this.isImageLoaded = false
-    this.maxHealth = 100
+    this.maxHealth = 50
     this.currentHealth = this.maxHealth
     this.isAlive = true
     this.isDying = false
